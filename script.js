@@ -282,13 +282,13 @@ document.getElementById('gamesGrid').addEventListener('click',e=>{
   const game=card.dataset.game;SFX.select();
   launchGame(game);
 });
-document.getElementById('backToHub').onclick=()=>{stopGame();showScreen('hub-screen');loadHub()};
+document.getElementById('backToHub').onclick=()=>{stopGame();showMobileControls('');showScreen('hub-screen');loadHub()};
 document.getElementById('pauseBtn').onclick=togglePause;
 document.getElementById('resumeBtn').onclick=togglePause;
 document.getElementById('restartBtn').onclick=()=>{togglePause();setTimeout(()=>launchGame(currentGame),100)};
-document.getElementById('quitBtn').onclick=()=>{stopGame();showScreen('hub-screen');loadHub()};
+document.getElementById('quitBtn').onclick=()=>{stopGame();showMobileControls('');showScreen('hub-screen');loadHub()};
 document.getElementById('playAgainBtn').onclick=()=>{document.getElementById('gameOverOverlay').classList.add('hidden');launchGame(currentGame)};
-document.getElementById('goHubBtn').onclick=()=>{stopGame();showScreen('hub-screen');loadHub()};
+document.getElementById('goHubBtn').onclick=()=>{stopGame();showMobileControls('');showScreen('hub-screen');loadHub()};
 
 let currentGame='',gamePaused=false,gameRunning=false,gameLoop=null;
 const gameCanvasWrap=document.getElementById('gameCanvasWrap');
@@ -311,6 +311,7 @@ function launchGame(game){
   document.getElementById('pauseOverlay').classList.add('hidden');
   document.getElementById('gameOverOverlay').classList.add('hidden');
   resizeCanvas();showScreen('game-screen');
+  showMobileControls(game);
 
   gameRunning=true;
   STATE.gamesPlayed++;saveState();
@@ -356,14 +357,77 @@ function endGame(score,gameName){
 const keys={};
 document.addEventListener('keydown',e=>{keys[e.key]=true;if(e.key===' ')e.preventDefault()});
 document.addEventListener('keyup',e=>{keys[e.key]=false});
-// D-Pad
+// D-Pad buttons (asteroid)
 document.querySelectorAll('.dpad-btn').forEach(btn=>{
   const dir=btn.dataset.dir;if(!dir)return;
   btn.addEventListener('touchstart',e=>{e.preventDefault();keys['Arrow'+dir.charAt(0).toUpperCase()+dir.slice(1)]=true;btn.classList.add('pressed')},{passive:false});
   btn.addEventListener('touchend',e=>{e.preventDefault();keys['Arrow'+dir.charAt(0).toUpperCase()+dir.slice(1)]=false;btn.classList.remove('pressed')},{passive:false});
 });
+
+// Space Shooter mobile: left/right buttons
+['spaceLeft','spaceRight'].forEach(id=>{
+  const btn=document.getElementById(id);if(!btn)return;
+  const dir=btn.dataset.dir;
+  btn.addEventListener('touchstart',e=>{e.preventDefault();keys['Arrow'+dir.charAt(0).toUpperCase()+dir.slice(1)]=true;btn.classList.add('pressed')},{passive:false});
+  btn.addEventListener('touchend',e=>{e.preventDefault();keys['Arrow'+dir.charAt(0).toUpperCase()+dir.slice(1)]=false;btn.classList.remove('pressed')},{passive:false});
+});
+
+// Space Shooter bomb button
+document.getElementById('spaceBomb').addEventListener('touchstart',e=>{e.preventDefault();keys['b']=true;document.getElementById('spaceBomb').classList.add('pressed')},{passive:false});
+document.getElementById('spaceBomb').addEventListener('touchend',e=>{e.preventDefault();keys['b']=false;document.getElementById('spaceBomb').classList.remove('pressed')},{passive:false});
+
+// Fire button
 document.getElementById('fireBtn').addEventListener('touchstart',e=>{e.preventDefault();keys[' ']=true});
 document.getElementById('fireBtn').addEventListener('touchend',e=>{e.preventDefault();keys[' ']=false});
+
+// ===== SPACE SLIDER BAR =====
+(function(){
+  const track=document.getElementById('spaceSliderTrack');
+  const thumb=document.getElementById('spaceSliderThumb');
+  if(!track||!thumb)return;
+  let dragging=false;
+  function getSliderPos(clientX){
+    const rect=track.getBoundingClientRect();
+    const pct=Math.max(0,Math.min(1,(clientX-rect.left)/rect.width));
+    return pct;
+  }
+  function moveThumb(pct){
+    thumb.style.left=(pct*100)+'%';
+    // Move spaceship proportionally
+    if(currentGame==='space'&&GAMES.space.player&&gameRunning){
+      const W=gameCanvas.width;
+      GAMES.space.player.x=pct*(W-GAMES.space.player.w);
+    }
+  }
+  track.addEventListener('touchstart',e=>{
+    e.preventDefault();dragging=true;
+    const pct=getSliderPos(e.touches[0].clientX);moveThumb(pct);
+  },{passive:false});
+  track.addEventListener('touchmove',e=>{
+    e.preventDefault();if(!dragging)return;
+    const pct=getSliderPos(e.touches[0].clientX);moveThumb(pct);
+  },{passive:false});
+  track.addEventListener('touchend',e=>{e.preventDefault();dragging=false},{passive:false});
+  // Mouse fallback
+  track.addEventListener('mousedown',e=>{dragging=true;moveThumb(getSliderPos(e.clientX))});
+  window.addEventListener('mousemove',e=>{if(dragging)moveThumb(getSliderPos(e.clientX))});
+  window.addEventListener('mouseup',()=>{dragging=false});
+})();
+
+// ===== SHOW/HIDE MOBILE CONTROLS PER GAME =====
+function showMobileControls(game){
+  // Hide all mobile control sets
+  document.querySelectorAll('.mobile-controls').forEach(el=>el.classList.remove('active'));
+  // Show the correct one
+  const map={space:'mobileSpace',asteroid:'mobileAsteroid'};
+  const id=map[game];
+  if(id){const el=document.getElementById(id);if(el)el.classList.add('active')}
+  // Sync slider thumb to ship position
+  if(game==='space'){
+    const thumb=document.getElementById('spaceSliderThumb');
+    if(thumb)thumb.style.left='50%';
+  }
+}
 
 // ===== COMBO SYSTEM =====
 let comboCount=0,comboTimer=null;
