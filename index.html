@@ -224,15 +224,33 @@
       </div>
     </div>
 
-    <!-- Mobile Controls -->
-    <div class="dpad hide-desktop" id="dpad">
-      <div class="dpad-btn dpad-up" data-dir="up">▲</div>
-      <div class="dpad-btn dpad-left" data-dir="left">◀</div>
-      <div class="dpad-btn dpad-center">●</div>
-      <div class="dpad-btn dpad-right" data-dir="right">▶</div>
-      <div class="dpad-btn dpad-down" data-dir="down">▼</div>
+    <!-- Mobile Controls: Space Shooter -->
+    <div class="mobile-controls" id="mobileSpace">
+      <div class="space-slider-wrap" id="spaceSliderWrap">
+        <div class="space-slider-track" id="spaceSliderTrack">
+          <div class="space-slider-thumb" id="spaceSliderThumb">🚀</div>
+        </div>
+      </div>
+      <div class="space-bottom-row">
+        <div class="mobile-btn mobile-btn-lg" id="spaceLeft" data-dir="left">◀</div>
+        <div class="mobile-btn mobile-btn-bomb" id="spaceBomb">💣</div>
+        <div class="mobile-btn mobile-btn-lg" id="spaceRight" data-dir="right">▶</div>
+      </div>
+      <div class="fire-btn" id="fireBtn">🔥</div>
     </div>
-    <div class="fire-btn hide-desktop" id="fireBtn">🔥</div>
+
+    <!-- Mobile Controls: Asteroid Dodge -->
+    <div class="mobile-controls" id="mobileAsteroid">
+      <div class="dpad">
+        <div class="dpad-btn dpad-up" data-dir="up">▲</div>
+        <div class="dpad-btn dpad-left" data-dir="left">◀</div>
+        <div class="dpad-btn dpad-center">●</div>
+        <div class="dpad-btn dpad-right" data-dir="right">▶</div>
+        <div class="dpad-btn dpad-down" data-dir="down">▼</div>
+      </div>
+    </div>
+
+    <!-- Flappy & Whack: no buttons needed (tap canvas) -->
   </div>
 </div>
 
