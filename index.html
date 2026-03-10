@@ -7,6 +7,7 @@
 <link rel="icon" type="image/png" href="ChatGPT Image Mar 3, 2026, 04_23_04 PM.png">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -142,12 +143,12 @@
           <div class="game-best">BEST: <span class="best-score" data-game="whack">0</span></div>
         </div>
       </div>
-      <div class="game-card locked" data-game="dino">
-        <div class="coming-badge">COMING SOON</div>
-        <div class="game-banner banner-coming">🦕</div>
+      <div class="game-card" data-game="dino">
+        <div class="game-banner banner-dino">🦕<span style="position:absolute;font-size:1rem;bottom:8px;left:10px;opacity:.5">🌵🦅💨</span></div>
         <div class="game-card-info">
           <div class="game-name">DINO JUMP</div>
-          <div class="game-desc">Classic endless runner. Jump obstacles.</div>
+          <div class="game-desc">Endless runner with double jump. Dodge cacti & pterodactyls!</div>
+          <div class="game-best">BEST: <span class="best-score" data-game="dino">0</span></div>
         </div>
       </div>
       <div class="game-card locked" data-game="zombie">
@@ -251,6 +252,31 @@
     </div>
 
     <!-- Flappy & Whack: no buttons needed (tap canvas) -->
+
+    <!-- Space Shooter Tutorial Overlay -->
+    <div class="tutorial-overlay hidden" id="spaceTutorial">
+      <div class="tutorial-title">🚀 SPACE SHOOTER</div>
+      <div style="font-size:.8rem;color:var(--text2);text-align:center;max-width:320px">Master these controls to survive the asteroid field</div>
+      <div class="tutorial-grid">
+        <div class="tutorial-key">
+          <div class="tutorial-key-icon">← →</div>
+          <div class="tutorial-key-label"><strong>Move</strong>Arrow keys to move ship</div>
+        </div>
+        <div class="tutorial-key">
+          <div class="tutorial-key-icon">⎵</div>
+          <div class="tutorial-key-label"><strong>Fire</strong>Space bar to shoot</div>
+        </div>
+        <div class="tutorial-key">
+          <div class="tutorial-key-icon">B</div>
+          <div class="tutorial-key-label"><strong>Bomb</strong>Press B to use bomb</div>
+        </div>
+        <div class="tutorial-key">
+          <div class="tutorial-key-icon">⏸</div>
+          <div class="tutorial-key-label"><strong>Pause</strong>ESC or pause button</div>
+        </div>
+      </div>
+      <button class="tutorial-continue" id="spaceTutorialBtn">CONTINUE →</button>
+    </div>
   </div>
 </div>
 
