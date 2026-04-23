@@ -1683,7 +1683,7 @@ document.addEventListener('keydown',e=>{
 function isDinoPlayTap(clientY){
   if(!isMobileViewport())return true;
   const rect=gameCanvas.getBoundingClientRect();
-  if((clientY-rect.top)<=rect.height*DINO_MOBILE_PLAY_RATIO)return true;
+  if((clientY-rect.top)<rect.height*DINO_MOBILE_PLAY_RATIO)return true;
   return false;
 }
 gameCanvas.addEventListener('click',e=>{
@@ -1719,7 +1719,7 @@ window.addEventListener('load',()=>{
     runLoading();
   }
 });
-window.addEventListener('resize',()=>{if(gameRunning){resizeCanvas();updateDinoMobileLayout()}});
+window.addEventListener('resize',()=>{if(gameRunning){resizeCanvas()}});
 
 // Auto-start
 runLoading();
