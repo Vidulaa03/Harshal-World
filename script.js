@@ -311,6 +311,7 @@ document.getElementById('goHubBtn').onclick=()=>{stopGame();showMobileControls('
 let currentGame='',gamePaused=false,gameRunning=false,gameLoop=null;
 const gameCanvasWrap=document.getElementById('gameCanvasWrap');
 const gameCanvas=document.getElementById('gameCanvas');
+const dinoMobileHint=document.getElementById('dinoMobileHint');
 const gCtx=gameCanvas.getContext('2d');
 const DINO_MOBILE_PLAY_RATIO=0.62;
 const DINO_MOBILE_HUD_OFFSET=30;
@@ -320,6 +321,8 @@ function isMobileViewport(){return window.matchMedia('(max-width: 768px)').match
 function updateDinoMobileLayout(){
   const enabled=currentGame==='dino'&&isMobileViewport();
   gameCanvasWrap.classList.toggle('dino-mobile-split',enabled);
+  gameCanvasWrap.style.setProperty('--dino-mobile-split-pct',`${DINO_MOBILE_PLAY_RATIO*100}%`);
+  if(dinoMobileHint)dinoMobileHint.hidden=!enabled;
 }
 
 function resizeCanvas(){
