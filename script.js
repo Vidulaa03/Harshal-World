@@ -3,7 +3,7 @@ const STATE = {
   name: '', avatar: '', level: 'beginner', xp: 0, gamesPlayed: 0,
   bestCombo: 0, totalScore: 0, soundOn: true, volume: 0.5,
   bestScores: {space:0,flappy:0,asteroid:0,whack:0,dino:0},
-  leaderboard: [], emojiAvatar: '🎮'
+  leaderboard: [], emojiAvatar: '🎮', theme: 'dark'
 };
 
 const QUOTES = [
@@ -188,6 +188,17 @@ function loadState(){
 }
 loadState();
 
+function applyTheme(theme){
+  const isLight=theme==='light';
+  document.body.classList.toggle('light-theme',isLight);
+  const themeBtn=document.getElementById('themeToggleNav');
+  if(themeBtn){
+    themeBtn.textContent=isLight?'🌙':'☀️';
+    themeBtn.title=isLight?'Switch to dark theme':'Switch to light theme';
+  }
+}
+applyTheme(STATE.theme);
+
 // ===== HUB =====
 function getRank(){return LEVELS_XP.find(l=>STATE.xp>=l.min&&STATE.xp<l.max)||LEVELS_XP[0]}
 function getRankClass(name){return{ROOKIE:'rank-rookie',PLAYER:'rank-player',PRO:'rank-pro',LEGEND:'rank-legend'}[name]}
@@ -217,6 +228,7 @@ function loadHub(){
   document.getElementById('soundToggle').classList.toggle('on',STATE.soundOn);
   document.getElementById('soundToggleNav').textContent=STATE.soundOn?'🔊':'🔇';
   document.getElementById('volumeSlider').value=STATE.volume;
+  applyTheme(STATE.theme);
 }
 function renderLeaderboard(){
   const list=document.getElementById('leaderboardList');list.innerHTML='';
@@ -262,6 +274,12 @@ document.getElementById('soundToggle').onclick=function(){
   saveState();
 };
 document.getElementById('soundToggleNav').onclick=()=>document.getElementById('soundToggle').click();
+document.getElementById('themeToggleNav').onclick=()=>{
+  STATE.theme=STATE.theme==='light'?'dark':'light';
+  applyTheme(STATE.theme);
+  saveState();
+  SFX.click();
+};
 document.getElementById('volumeSlider').oninput=function(){STATE.volume=+this.value;saveState()};
 document.getElementById('saveName').onclick=()=>{
   const n=document.getElementById('settingsName').value.trim();

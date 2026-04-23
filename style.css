@@ -20,6 +20,18 @@
   --glow: 0 0 20px rgba(124,58,237,0.5);
   --glow2: 0 0 40px rgba(124,58,237,0.3);
 }
+body.light-theme{
+  --bg:#F5F7FF;
+  --bg2:#E9ECFF;
+  --bg3:#DEE4FF;
+  --text:#111827;
+  --text2:#4B5563;
+  --glass:rgba(79,70,229,0.08);
+  --glass2:rgba(255,255,255,0.78);
+  --border:rgba(99,102,241,0.26);
+  --glow:0 0 18px rgba(99,102,241,0.22);
+  --glow2:0 0 35px rgba(79,70,229,0.16);
+}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif}
 canvas{display:block}
@@ -82,6 +94,7 @@ canvas{display:block}
 #hub-screen::-webkit-scrollbar{width:4px}
 #hub-screen::-webkit-scrollbar-thumb{background:var(--purple);border-radius:4px}
 .navbar{position:sticky;top:0;z-index:50;background:rgba(7,7,15,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:.8rem 2rem;display:flex;align-items:center;gap:1rem}
+body.light-theme .navbar{background:rgba(255,255,255,0.88)}
 .nav-logo{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:900;background:linear-gradient(135deg,var(--purple2),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;flex:1}
 .nav-greeting{font-size:.95rem;color:var(--text2);background:rgba(124,58,237,.1);padding:4px 12px;border-radius:8px;border:1px solid rgba(124,58,237,.2)}
 .nav-greeting span{color:var(--neon2);font-weight:700}
@@ -157,6 +170,8 @@ canvas{display:block}
 .settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
 .settings-overlay.hidden{display:none}
 .settings-panel{background:#12122A;border:1px solid var(--border);border-radius:24px;padding:2rem;width:min(420px,90vw);box-shadow:var(--glow2)}
+body.light-theme .settings-overlay{background:rgba(15,23,42,0.3)}
+body.light-theme .settings-panel{background:#F8FAFF}
 .settings-title{font-family:'Orbitron',sans-serif;font-size:1.2rem;font-weight:700;color:var(--neon2);margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center}
 .settings-row{display:flex;align-items:center;justify-content:space-between;padding:.8rem 0;border-bottom:1px solid rgba(255,255,255,0.05)}
 .settings-row:last-child{border-bottom:none}
@@ -178,6 +193,7 @@ canvas{display:block}
 /* GAME SCREEN */
 #game-screen{flex-direction:column;align-items:stretch;justify-content:flex-start;z-index:30;background:var(--bg)}
 .game-hud{display:flex;align-items:center;gap:1rem;padding:.7rem 1.5rem;background:rgba(7,7,15,0.9);border-bottom:1px solid var(--border);backdrop-filter:blur(10px);flex-shrink:0}
+body.light-theme .game-hud{background:rgba(255,255,255,0.9)}
 .hud-back{background:none;border:1px solid var(--border);border-radius:10px;color:var(--text2);padding:.4rem .8rem;cursor:pointer;font-size:.8rem;transition:all .2s;font-family:'Nunito',sans-serif}
 .hud-back:hover{border-color:var(--red);color:var(--red)}
 .hud-game-name{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:700;color:var(--neon2)}
@@ -191,6 +207,7 @@ canvas{display:block}
 /* Overlays */
 .game-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);z-index:10}
 .game-overlay.hidden{display:none}
+body.light-theme .game-overlay{background:rgba(15,23,42,0.55)}
 .overlay-title{font-family:'Orbitron',sans-serif;font-size:2rem;font-weight:900;margin-bottom:.5rem;background:linear-gradient(135deg,var(--neon2),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .overlay-score{font-family:'Orbitron',sans-serif;font-size:1.4rem;color:var(--yellow);margin-bottom:1.5rem}
 .overlay-btns{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center}
