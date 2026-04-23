@@ -313,6 +313,8 @@ const gameCanvasWrap=document.getElementById('gameCanvasWrap');
 const gameCanvas=document.getElementById('gameCanvas');
 const gCtx=gameCanvas.getContext('2d');
 const DINO_MOBILE_PLAY_RATIO=0.62;
+const DINO_MOBILE_HUD_OFFSET=30;
+const DINO_MOBILE_TAP_HINT_Y=20;
 
 function isMobileViewport(){return window.matchMedia('(max-width: 768px)').matches}
 function updateDinoMobileLayout(){
@@ -1590,9 +1592,9 @@ GAMES.dino=(function(){
     ctx.save();
     ctx.shadowColor='#00ff88';ctx.shadowBlur=8;
     ctx.fillStyle='#00ff88';ctx.font='bold 16px Orbitron,monospace';ctx.textAlign='left';
-    ctx.fillText('SCORE: '+score,15,mobileDino?splitY+30:30);
+    ctx.fillText('SCORE: '+score,15,mobileDino?splitY+DINO_MOBILE_HUD_OFFSET:30);
     ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='12px Orbitron,monospace';ctx.textAlign='right';
-    ctx.fillText('HI: '+hiScore,W-15,mobileDino?splitY+30:30);
+    ctx.fillText('HI: '+hiScore,W-15,mobileDino?splitY+DINO_MOBILE_HUD_OFFSET:30);
     ctx.shadowBlur=0;
 
     // speed bar
@@ -1604,7 +1606,7 @@ GAMES.dino=(function(){
     ctx.fillText('SPD',120,H-15);
     if(mobileDino){
       ctx.fillStyle='rgba(0,255,136,0.45)';ctx.font='10px Orbitron,monospace';ctx.textAlign='center';
-      ctx.fillText('TAP UPPER AREA',W/2,20);
+      ctx.fillText('TAP UPPER AREA',W/2,DINO_MOBILE_TAP_HINT_Y);
       ctx.fillStyle='rgba(0,255,136,0.22)';
       ctx.fillRect(0,splitY,W,H-splitY);
       ctx.strokeStyle='rgba(0,255,136,0.35)';
