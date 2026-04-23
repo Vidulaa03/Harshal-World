@@ -372,6 +372,11 @@ function endGame(score,gameName){
 const keys={};
 document.addEventListener('keydown',e=>{keys[e.key]=true;if(e.key===' ')e.preventDefault()});
 document.addEventListener('keyup',e=>{keys[e.key]=false});
+// Mouse fire for Space Shooter
+let mouseFire=false;
+gameCanvas.addEventListener('mousedown',e=>{if(e.button===0)mouseFire=true});
+gameCanvas.addEventListener('mouseup',e=>{if(e.button===0)mouseFire=false});
+gameCanvas.addEventListener('mouseleave',e=>{if(e.button===0)mouseFire=false});
 // D-Pad buttons (asteroid)
 document.querySelectorAll('.dpad-btn').forEach(btn=>{
   const dir=btn.dataset.dir;if(!dir)return;
@@ -589,7 +594,7 @@ GAMES.space={
     this.gameTime++;
 
     if(keys['b']||keys['B']){this.useBomb();keys['b']=false;keys['B']=false}
-    if(keys[' ']&&this.gameTime%8===0)this.fireBullets();
+    if((keys[' ']||mouseFire)&&this.gameTime%8===0)this.fireBullets();
 
     const nd=getDifficulty(this.gameTime);
     if(nd>this.diffLevel){
@@ -604,10 +609,10 @@ GAMES.space={
     if(this.puMsgTimer>0)this.puMsgTimer--;
     if(this.bombFlash>0)this.bombFlash--;
 
-    if(keys['ArrowLeft'])p.vx-=p.acc;
-    if(keys['ArrowRight'])p.vx+=p.acc;
-    if(keys['ArrowUp'])p.vy-=p.acc;
-    if(keys['ArrowDown'])p.vy+=p.acc;
+    if(keys['ArrowLeft']||keys['a']||keys['A'])p.vx-=p.acc;
+    if(keys['ArrowRight']||keys['d']||keys['D'])p.vx+=p.acc;
+    if(keys['ArrowUp']||keys['w']||keys['W'])p.vy-=p.acc;
+    if(keys['ArrowDown']||keys['s']||keys['S'])p.vy+=p.acc;
     p.vx*=p.fric;p.vy*=p.fric;
     p.vx=Math.max(-p.maxSpd,Math.min(p.maxSpd,p.vx));
     p.vy=Math.max(-p.maxSpd,Math.min(p.maxSpd,p.vy));
