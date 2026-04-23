@@ -316,10 +316,13 @@ const gCtx=gameCanvas.getContext('2d');
 const DINO_MOBILE_PLAY_RATIO=0.62;
 const DINO_MOBILE_HUD_OFFSET=30;
 const DINO_MOBILE_TAP_HINT_Y=20;
+const DINO_MOBILE_TAP_HINT='TAP UPPER AREA';
+const DINO_MOBILE_IDLE_HINT='TAP TOP AREA TO START';
 
 function isMobileViewport(){return window.matchMedia('(max-width: 768px)').matches}
 function updateDinoMobileLayout(){
-  const enabled=currentGame==='dino'&&isMobileViewport();
+  const gameScreenVisible=!document.getElementById('game-screen').classList.contains('hidden');
+  const enabled=gameScreenVisible&&currentGame==='dino'&&isMobileViewport();
   gameCanvasWrap.classList.toggle('dino-mobile-split',enabled);
   gameCanvasWrap.style.setProperty('--dino-mobile-split-pct',`${DINO_MOBILE_PLAY_RATIO*100}%`);
   if(dinoMobileHint)dinoMobileHint.hidden=!enabled;
@@ -1609,7 +1612,7 @@ GAMES.dino=(function(){
     ctx.fillText('SPD',120,H-15);
     if(mobileDino){
       ctx.fillStyle='rgba(0,255,136,0.45)';ctx.font='10px Orbitron,monospace';ctx.textAlign='center';
-      ctx.fillText('TAP UPPER AREA',W/2,DINO_MOBILE_TAP_HINT_Y);
+      ctx.fillText(DINO_MOBILE_TAP_HINT,W/2,DINO_MOBILE_TAP_HINT_Y);
       ctx.fillStyle='rgba(0,255,136,0.22)';
       ctx.fillRect(0,splitY,W,H-splitY);
       ctx.strokeStyle='rgba(0,255,136,0.35)';
@@ -1623,7 +1626,7 @@ GAMES.dino=(function(){
       ctx.save();ctx.shadowColor='#00ff88';ctx.shadowBlur=15;
       ctx.fillStyle=Math.floor(frameCount/30)%2===0?'#00ff88':'rgba(0,255,136,0.3)';
       ctx.font='bold 18px Orbitron,monospace';ctx.textAlign='center';
-      ctx.fillText(mobileDino?'TAP TOP AREA TO START':'PRESS SPACE TO START',W/2,H/2-20);
+      ctx.fillText(mobileDino?DINO_MOBILE_IDLE_HINT:'PRESS SPACE TO START',W/2,H/2-20);
       ctx.shadowBlur=0;ctx.restore();
     }
 
