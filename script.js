@@ -1683,7 +1683,8 @@ document.addEventListener('keydown',e=>{
 function isDinoPlayTap(clientY){
   if(!isMobileViewport())return true;
   const rect=gameCanvas.getBoundingClientRect();
-  return (clientY-rect.top)<=rect.height*DINO_MOBILE_PLAY_RATIO;
+  if((clientY-rect.top)<=rect.height*DINO_MOBILE_PLAY_RATIO)return true;
+  return false;
 }
 gameCanvas.addEventListener('click',e=>{
   if(currentGame==='dino'&&gameRunning&&!gamePaused&&isDinoPlayTap(e.clientY))GAMES.dino.jump();
@@ -1718,7 +1719,7 @@ window.addEventListener('load',()=>{
     runLoading();
   }
 });
-window.addEventListener('resize',()=>{if(gameRunning)resizeCanvas();updateDinoMobileLayout()});
+window.addEventListener('resize',()=>{if(gameRunning){resizeCanvas();updateDinoMobileLayout()}});
 
 // Auto-start
 runLoading();
