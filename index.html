@@ -87,6 +87,7 @@
     <div class="nav-greeting">Welcome, <span id="navName">Player</span></div>
     <div class="nav-best">🏆 <span id="navBest">0</span></div>
     <button class="nav-btn" id="soundToggleNav" title="Toggle Sound">🔊</button>
+    <button class="nav-btn" id="themeToggleNav" title="Switch to light theme">☀️</button>
     <button class="nav-btn" id="settingsBtn">⚙️</button>
   </nav>
   <div class="hub-content">
@@ -211,6 +212,7 @@
   </div>
   <div class="game-canvas-wrap" id="gameCanvasWrap">
     <canvas id="gameCanvas"></canvas>
+    <div class="sr-only" id="dinoMobileHint" aria-live="polite" hidden>For Dino Jump on mobile, tap upper area to jump. The lower area shows live game analysis.</div>
     <!-- Pause Overlay -->
     <div class="game-overlay hidden" id="pauseOverlay">
       <div class="overlay-title">PAUSED</div>
@@ -264,15 +266,23 @@
     <!-- Space Shooter Tutorial Overlay -->
     <div class="tutorial-overlay hidden" id="spaceTutorial">
       <div class="tutorial-title">🚀 SPACE SHOOTER</div>
-      <div style="font-size:.8rem;color:var(--text2);text-align:center;max-width:320px">Master these controls to survive the asteroid field</div>
+      <div style="font-size:.8rem;color:var(--text2);text-align:center;max-width:500px">Master these controls to survive the asteroid field</div>
       <div class="tutorial-grid">
         <div class="tutorial-key">
           <div class="tutorial-key-icon">← →</div>
-          <div class="tutorial-key-label"><strong>Move</strong>Arrow keys to move ship</div>
+          <div class="tutorial-key-label"><strong>Move</strong>Arrow keys to move</div>
+        </div>
+        <div class="tutorial-key">
+          <div class="tutorial-key-icon">A D</div>
+          <div class="tutorial-key-label"><strong>Move</strong>A and D keys to move</div>
         </div>
         <div class="tutorial-key">
           <div class="tutorial-key-icon">⎵</div>
           <div class="tutorial-key-label"><strong>Fire</strong>Space bar to shoot</div>
+        </div>
+        <div class="tutorial-key">
+          <div class="tutorial-key-icon">🖱</div>
+          <div class="tutorial-key-label"><strong>Fire</strong>Left mouse click to shoot</div>
         </div>
         <div class="tutorial-key">
           <div class="tutorial-key-icon">B</div>

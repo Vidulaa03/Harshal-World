@@ -195,6 +195,17 @@ function loadState(){
 }
 loadState();
 
+function applyTheme(theme){
+  const isLight=theme==='light';
+  document.body.classList.toggle('light-theme',isLight);
+  const themeBtn=document.getElementById('themeToggleNav');
+  if(themeBtn){
+    themeBtn.textContent=isLight?'🌙':'☀️';
+    themeBtn.title=isLight?'Switch to dark theme':'Switch to light theme';
+  }
+}
+applyTheme(STATE.theme);
+
 // ===== HUB =====
 function getRank(){return LEVELS_XP.find(l=>STATE.xp>=l.min&&STATE.xp<l.max)||LEVELS_XP[0]}
 function getRankClass(name){return{ROOKIE:'rank-rookie',PLAYER:'rank-player',PRO:'rank-pro',LEGEND:'rank-legend'}[name]}
@@ -330,6 +341,12 @@ document.getElementById('soundToggle').onclick=function(){
   saveState();
 };
 document.getElementById('soundToggleNav').onclick=()=>document.getElementById('soundToggle').click();
+document.getElementById('themeToggleNav').onclick=()=>{
+  STATE.theme=STATE.theme==='light'?'dark':'light';
+  applyTheme(STATE.theme);
+  saveState();
+  SFX.click();
+};
 document.getElementById('volumeSlider').oninput=function(){STATE.volume=+this.value;saveState()};
 document.getElementById('saveName').onclick=()=>{
   const n=document.getElementById('settingsName').value.trim();
@@ -362,13 +379,29 @@ document.getElementById('goHubBtn').onclick=()=>{stopGame();showMobileControls('
 let currentGame='',gamePaused=false,gameRunning=false,gameLoop=null;
 const gameCanvasWrap=document.getElementById('gameCanvasWrap');
 const gameCanvas=document.getElementById('gameCanvas');
+const dinoMobileHint=document.getElementById('dinoMobileHint');
 const gCtx=gameCanvas.getContext('2d');
+const DINO_MOBILE_PLAY_RATIO=0.62;
+const DINO_MOBILE_HUD_OFFSET=30;
+const DINO_MOBILE_TAP_HINT_Y=20;
+const DINO_MOBILE_TAP_HINT='TAP UPPER AREA';
+const DINO_MOBILE_IDLE_HINT='TAP TOP AREA TO START';
+
+function isMobileViewport(){return window.matchMedia('(max-width: 768px)').matches}
+function updateDinoMobileLayout(){
+  const gameScreenVisible=!document.getElementById('game-screen').classList.contains('hidden');
+  const enabled=gameScreenVisible&&currentGame==='dino'&&isMobileViewport();
+  gameCanvasWrap.classList.toggle('dino-mobile-split',enabled);
+  gameCanvasWrap.style.setProperty('--dino-mobile-split-pct',`${DINO_MOBILE_PLAY_RATIO*100}%`);
+  if(dinoMobileHint)dinoMobileHint.hidden=!enabled;
+}
 
 function resizeCanvas(){
   gameCanvas.width=gameCanvasWrap.clientWidth;
   gameCanvas.height=gameCanvasWrap.clientHeight;
+  updateDinoMobileLayout();
 }
-function stopGame(){gameRunning=false;gamePaused=false;if(gameLoop)cancelAnimationFrame(gameLoop);gameLoop=null;clearGame()}
+function stopGame(){gameRunning=false;gamePaused=false;if(gameLoop)cancelAnimationFrame(gameLoop);gameLoop=null;gameCanvasWrap.classList.remove('dino-mobile-split');clearGame()}
 function togglePause(){
   gamePaused=!gamePaused;
   document.getElementById('pauseOverlay').classList.toggle('hidden',!gamePaused);
@@ -1175,7 +1208,8 @@ GAMES.whack={
 GAMES.dino=(function(){
   // --- constants & state ---
   const GRAVITY=0.6, JUMP_FORCE=-12, DOUBLE_JUMP_FORCE=-10;
-  const GROUND_Y_OFFSET=60; // from bottom
+  const GROUND_Y_OFFSET=60;
+  const MOBILE_GROUND_Y_OFFSET=120;
   let W,H,groundY;
   let dino,obstacles,pteros,stars,mountains,groundDots,dustParts,deathParts,speedLines;
   let score,hiScore,frameCount,gameSpeed,maxSpeed,state; // 'idle','playing','dead'
@@ -1186,11 +1220,15 @@ GAMES.dino=(function(){
   let deathSpin,deathFlashTimer;
   let speedBarPct;
 
+  function getGroundOffset(){
+    return isMobileViewport()?MOBILE_GROUND_Y_OFFSET:GROUND_Y_OFFSET;
+  }
+
   function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();}
 
   function reset(){
     W=gameCanvas.width; H=gameCanvas.height;
-    groundY=H-GROUND_Y_OFFSET;
+    groundY=H-getGroundOffset();
     hiScore=parseInt(localStorage.getItem('dinoJump_best'))||0;
     score=0; frameCount=0; gameSpeed=5; maxSpeed=15;
     state='idle'; jumpsLeft=2; dayNightPhase=0; lastMilestone=0;
@@ -1550,7 +1588,7 @@ GAMES.dino=(function(){
   function draw(){
     const ctx=gCtx;
     W=gameCanvas.width;H=gameCanvas.height;
-    groundY=H-GROUND_Y_OFFSET;
+    groundY=H-getGroundOffset();
 
     ctx.save();
     if(shakeTimer>0){
@@ -1626,12 +1664,14 @@ GAMES.dino=(function(){
     drawDino(ctx);
 
     // HUD on canvas
+    const mobileDino=isMobileViewport();
+    const splitY=Math.floor(H*DINO_MOBILE_PLAY_RATIO);
     ctx.save();
     ctx.shadowColor='#00ff88';ctx.shadowBlur=8;
     ctx.fillStyle='#00ff88';ctx.font='bold 16px Orbitron,monospace';ctx.textAlign='left';
-    ctx.fillText('SCORE: '+score,15,30);
+    ctx.fillText('SCORE: '+score,15,mobileDino?splitY+DINO_MOBILE_HUD_OFFSET:30);
     ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='12px Orbitron,monospace';ctx.textAlign='right';
-    ctx.fillText('HI: '+hiScore,W-15,30);
+    ctx.fillText('HI: '+hiScore,W-15,mobileDino?splitY+DINO_MOBILE_HUD_OFFSET:30);
     ctx.shadowBlur=0;
 
     // speed bar
@@ -1641,6 +1681,15 @@ GAMES.dino=(function(){
     ctx.fillRect(15,H-20,100*speedBarPct,6);
     ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='9px Orbitron,monospace';ctx.textAlign='left';
     ctx.fillText('SPD',120,H-15);
+    if(mobileDino){
+      ctx.fillStyle='rgba(0,255,136,0.45)';ctx.font='10px Orbitron,monospace';ctx.textAlign='center';
+      ctx.fillText(DINO_MOBILE_TAP_HINT,W/2,DINO_MOBILE_TAP_HINT_Y);
+      ctx.fillStyle='rgba(0,255,136,0.22)';
+      ctx.fillRect(0,splitY,W,H-splitY);
+      ctx.strokeStyle='rgba(0,255,136,0.35)';
+      ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(0,splitY);ctx.lineTo(W,splitY);ctx.stroke();
+    }
     ctx.restore();
 
     // idle text
@@ -1648,7 +1697,7 @@ GAMES.dino=(function(){
       ctx.save();ctx.shadowColor='#00ff88';ctx.shadowBlur=15;
       ctx.fillStyle=Math.floor(frameCount/30)%2===0?'#00ff88':'rgba(0,255,136,0.3)';
       ctx.font='bold 18px Orbitron,monospace';ctx.textAlign='center';
-      ctx.fillText('PRESS SPACE TO START',W/2,H/2-20);
+      ctx.fillText(mobileDino?DINO_MOBILE_IDLE_HINT:'PRESS SPACE TO START',W/2,H/2-20);
       ctx.shadowBlur=0;ctx.restore();
     }
 
@@ -1702,8 +1751,22 @@ gameCanvas.addEventListener('touchstart',e=>{if(currentGame==='flappy'){e.preven
 document.addEventListener('keydown',e=>{
   if(currentGame==='dino'&&gameRunning&&!gamePaused&&(e.key===' '||e.key==='ArrowUp')){e.preventDefault();GAMES.dino.jump();}
 });
-gameCanvas.addEventListener('click',e=>{if(currentGame==='dino'&&gameRunning&&!gamePaused)GAMES.dino.jump()});
-gameCanvas.addEventListener('touchstart',e=>{if(currentGame==='dino'&&gameRunning&&!gamePaused){e.preventDefault();GAMES.dino.jump()}},{passive:false});
+function isDinoPlayTap(clientY){
+  if(!isMobileViewport())return true;
+  const rect=gameCanvas.getBoundingClientRect();
+  if((clientY-rect.top)<rect.height*DINO_MOBILE_PLAY_RATIO)return true;
+  return false;
+}
+gameCanvas.addEventListener('click',e=>{
+  if(currentGame==='dino'&&gameRunning&&!gamePaused&&isDinoPlayTap(e.clientY))GAMES.dino.jump();
+});
+gameCanvas.addEventListener('touchstart',e=>{
+  if(currentGame==='dino'&&gameRunning&&!gamePaused){
+    const t=e.touches[0];
+    if(!t)return;
+    if(isDinoPlayTap(t.clientY)){e.preventDefault();GAMES.dino.jump();}
+  }
+},{passive:false});
 
 // ===== TWEMOJI AUTO-PARSE =====
 function parseEmoji(el){if(typeof twemoji!=='undefined')twemoji.parse(el||document.body,{folder:'svg',ext:'.svg'});}
@@ -1727,7 +1790,7 @@ window.addEventListener('load',()=>{
     runLoading();
   }
 });
-window.addEventListener('resize',()=>{if(gameRunning)resizeCanvas()});
+window.addEventListener('resize',()=>{if(gameRunning){resizeCanvas()}});
 
 // Auto-start
 runLoading();
