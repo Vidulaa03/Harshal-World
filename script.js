@@ -99,8 +99,22 @@ function runLoading(){
   const interval=setInterval(()=>{
     p+=Math.random()*4+1;if(p>100)p=100;
     bar.style.width=p+'%';pct.textContent=Math.floor(p)+'%';
-    if(p>=100){clearInterval(interval);setTimeout(()=>showScreen('name-screen'),400)}
-  },60);
+
+    //Refactored loading completion logic to conditionally navigate users based on state
+
+    if(p>=100){
+  clearInterval(interval);
+  setTimeout(()=>{
+    if(STATE.name){
+      loadHub();
+      showScreen('hub-screen');
+    } else {
+      showScreen('name-screen');
+    }
+  },400);
+}
+},60);
+  
   setInterval(()=>{
     quote.style.opacity='0';
     setTimeout(()=>{quote.textContent=QUOTES[qi++%QUOTES.length];quote.style.opacity='1'},400);
@@ -165,6 +179,10 @@ document.getElementById('nameSubmitBtn').onclick=()=>{
   const n=document.getElementById('nameInput').value.trim();
   if(!n){document.getElementById('nameInput').style.borderColor='var(--red)';return}
   STATE.name=n;STATE.avatar=currentAvatarUrl||dicebearUrl('fun-emoji','user0');
+
+  //Add  saveState() to persist temporary UI state
+  saveState();
+
   SFX.select();showScreen('level-screen');
 };
 document.getElementById('nameInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('nameSubmitBtn').click()});
@@ -176,6 +194,8 @@ document.querySelectorAll('.level-card').forEach(card=>{
     SFX.levelUp();
     document.querySelectorAll('.level-card').forEach(c=>c.classList.remove('selected'));
     card.classList.add('selected');
+    //Add  saveState() to persist temporary UI state
+    saveState();
     setTimeout(()=>{loadHub();showScreen('hub-screen')},400);
   };
 });
@@ -1738,5 +1758,4 @@ window.addEventListener('load',()=>{
 });
 window.addEventListener('resize',()=>{if(gameRunning){resizeCanvas()}});
 
-// Auto-start
-runLoading();
+
