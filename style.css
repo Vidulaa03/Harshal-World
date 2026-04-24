@@ -281,3 +281,26 @@ img.emoji{height:1.15em;width:1.15em;margin:0 .06em;vertical-align:-0.15em;displ
 
 /* Scrollbar for hub */
 #hub-screen{scrollbar-width:thin;scrollbar-color:var(--purple) transparent}
+
+/* ACHIEVEMENTS UI */
+.achievements-card { background: var(--glass2); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; backdrop-filter: blur(20px); }
+.achievements-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+.achievement-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; transition: all 0.3s; }
+.achievement-item:hover { border-color: var(--purple2); background: rgba(124,58,237,0.1); }
+.achievement-icon { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 2rem; border-radius: 50%; background: rgba(0,0,0,0.3); border: 2px solid transparent; flex-shrink: 0; }
+.achievement-item.unlocked .achievement-icon { border-color: var(--yellow); box-shadow: 0 0 15px rgba(245,158,11,0.4); background: rgba(245,158,11,0.1); }
+.achievement-info { flex: 1; }
+.achievement-name { font-family: 'Orbitron', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--neon2); margin-bottom: 0.2rem; }
+.achievement-desc { font-size: 0.7rem; color: var(--text2); line-height: 1.4; }
+.achievement-item.locked { opacity: 0.5; filter: grayscale(100%); }
+.achievement-item.locked .achievement-name { color: var(--text2); }
+
+/* ACHIEVEMENT TOAST */
+.achievement-toast { background: rgba(124,58,237,0.9); border: 1px solid var(--neon2); border-radius: 12px; padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1rem; backdrop-filter: blur(10px); box-shadow: 0 0 20px rgba(168,85,247,0.5); animation: toastSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.achievement-toast.hide { animation: toastSlideOut 0.5s ease-in forwards; }
+.toast-icon { font-size: 2.2rem; filter: drop-shadow(0 0 8px rgba(255,255,255,0.5)); }
+.toast-content { display: flex; flex-direction: column; gap: 0.2rem; }
+.toast-title { font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
+.toast-name { font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 700; color: #fff; }
+@keyframes toastSlideIn { from { opacity: 0; transform: translateX(100%) scale(0.9); } to { opacity: 1; transform: translateX(0) scale(1); } }
+@keyframes toastSlideOut { from { opacity: 1; transform: translateX(0) scale(1); } to { opacity: 0; transform: translateX(100%) scale(0.9); } }

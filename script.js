@@ -3,8 +3,15 @@ const STATE = {
   name: '', avatar: '', level: 'beginner', xp: 0, gamesPlayed: 0,
   bestCombo: 0, totalScore: 0, soundOn: true, volume: 0.5,
   bestScores: {space:0,flappy:0,asteroid:0,whack:0,dino:0},
-  leaderboard: [], emojiAvatar: '🎮'
+  leaderboard: [], emojiAvatar: '🎮', achievements: []
 };
+
+const ACHIEVEMENTS_LIST = [
+  { id: 'arcade_rookie', name: 'Arcade Rookie', desc: 'Play 10 total games.', icon: '🕹️' },
+  { id: 'combo_king', name: 'Combo King', desc: 'Reach a 15x combo in any game.', icon: '💥' },
+  { id: 'space_commander', name: 'Space Commander', desc: 'Score over 500 points in Space Shooter.', icon: '🚀' },
+  { id: 'legendary_gamer', name: 'Legendary Gamer', desc: 'Reach the "LEGEND" rank via XP.', icon: '🏆' }
+];
 
 const QUOTES = [
   "Every pixel tells a story...",
@@ -213,6 +220,7 @@ function loadHub(){
   document.getElementById('totalXp').textContent=STATE.xp;
   document.querySelectorAll('.best-score').forEach(el=>{el.textContent=STATE.bestScores[el.dataset.game]||0});
   renderLeaderboard();
+  renderAchievements();
   document.getElementById('settingsName').value=STATE.name;
   document.getElementById('soundToggle').classList.toggle('on',STATE.soundOn);
   document.getElementById('soundToggleNav').textContent=STATE.soundOn?'🔊':'🔇';
@@ -229,6 +237,65 @@ function renderLeaderboard(){
     list.appendChild(div);
   });
 }
+function renderAchievements(){
+  const list = document.getElementById('achievementsList');
+  if(!list) return;
+  list.innerHTML = '';
+  ACHIEVEMENTS_LIST.forEach(ach => {
+    const unlocked = STATE.achievements && STATE.achievements.includes(ach.id);
+    const div = document.createElement('div');
+    div.className = 'achievement-item' + (unlocked ? ' unlocked' : ' locked');
+    div.innerHTML = `
+      <div class="achievement-icon">${ach.icon}</div>
+      <div class="achievement-info">
+        <div class="achievement-name">${ach.name}</div>
+        <div class="achievement-desc">${ach.desc}</div>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+function showAchievementPopup(ach) {
+  SFX.levelUp();
+  const container = document.getElementById('achievement-toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'achievement-toast';
+  toast.innerHTML = `
+    <div class="toast-icon">${ach.icon}</div>
+    <div class="toast-content">
+      <div class="toast-title">Achievement Unlocked!</div>
+      <div class="toast-name">${ach.name}</div>
+    </div>
+  `;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('hide');
+    setTimeout(() => toast.remove(), 600);
+  }, 4000);
+}
+function checkAchievements() {
+  if (!STATE.achievements) STATE.achievements = [];
+  let changed = false;
+  ACHIEVEMENTS_LIST.forEach(ach => {
+    if (!STATE.achievements.includes(ach.id)) {
+      let unlocked = false;
+      if (ach.id === 'arcade_rookie' && STATE.gamesPlayed >= 10) unlocked = true;
+      if (ach.id === 'combo_king' && STATE.bestCombo >= 15) unlocked = true;
+      if (ach.id === 'space_commander' && STATE.bestScores.space >= 500) unlocked = true;
+      if (ach.id === 'legendary_gamer' && getRank().name === 'LEGEND') unlocked = true;
+      if (unlocked) {
+        STATE.achievements.push(ach.id);
+        changed = true;
+        showAchievementPopup(ach);
+      }
+    }
+  });
+  if (changed) {
+    saveState();
+    renderAchievements();
+  }
+}
 function addToLeaderboard(game,score){
   STATE.leaderboard.push({game,name:STATE.name,score,date:Date.now()});
   STATE.leaderboard.sort((a,b)=>b.score-a.score);
@@ -241,6 +308,7 @@ function addXp(amount){
   STATE.xp+=amount;saveState();
   const curr=getRank();
   if(curr.name!==prev.name){SFX.levelUp();showFloatingText(gameCanvasWrap,'🎉 RANK UP: '+curr.name+'!',true)}
+  checkAchievements();
 }
 
 // ===== SETTINGS =====
@@ -271,6 +339,7 @@ document.getElementById('resetScores').onclick=()=>{
   if(confirm('Reset all scores and XP? This cannot be undone.')){
     STATE.xp=0;STATE.gamesPlayed=0;STATE.bestCombo=0;STATE.totalScore=0;
     STATE.bestScores={space:0,flappy:0,asteroid:0,whack:0,dino:0};STATE.leaderboard=[];
+    STATE.achievements=[];
     saveState();loadHub();SFX.hit();
   }
 };
@@ -322,6 +391,7 @@ function launchGame(game){
 
   gameRunning=true;
   STATE.gamesPlayed++;saveState();
+  checkAchievements();
   GAMES[game]?.start();
 }
 
@@ -330,6 +400,7 @@ document.getElementById('spaceTutorialBtn').onclick=()=>{
   document.getElementById('spaceTutorial').classList.add('hidden');
   gameRunning=true;
   STATE.gamesPlayed++;saveState();
+  checkAchievements();
   GAMES.space?.start();
 };
 
@@ -454,6 +525,7 @@ function addCombo(){
   if(comboCount>2){el.classList.remove('combo-flash');void el.offsetWidth;el.classList.add('combo-flash')}
   if(comboTimer)clearTimeout(comboTimer);
   comboTimer=setTimeout(()=>{comboCount=0;document.getElementById('hudCombo').textContent=''},2000);
+  checkAchievements();
   return comboCount;
 }
 function resetCombo(){comboCount=0;document.getElementById('hudCombo').textContent=''}
