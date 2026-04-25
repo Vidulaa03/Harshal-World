@@ -3,7 +3,8 @@ const STATE = {
   name: '', avatar: '', level: 'beginner', xp: 0, gamesPlayed: 0,
   bestCombo: 0, totalScore: 0, soundOn: true, volume: 0.5,
   bestScores: {space:0,flappy:0,asteroid:0,whack:0,dino:0},
-  leaderboard: [], emojiAvatar: '🎮', achievements: []
+
+  leaderboard: [], emojiAvatar: '🎮', theme: 'dark'
 };
 
 const ACHIEVEMENTS_LIST = [
@@ -106,8 +107,22 @@ function runLoading(){
   const interval=setInterval(()=>{
     p+=Math.random()*4+1;if(p>100)p=100;
     bar.style.width=p+'%';pct.textContent=Math.floor(p)+'%';
-    if(p>=100){clearInterval(interval);setTimeout(()=>showScreen('name-screen'),400)}
-  },60);
+
+    //Refactored loading completion logic to conditionally navigate users based on state
+
+    if(p>=100){
+  clearInterval(interval);
+  setTimeout(()=>{
+    if(STATE.name){
+      loadHub();
+      showScreen('hub-screen');
+    } else {
+      showScreen('name-screen');
+    }
+  },400);
+}
+},60);
+  
   setInterval(()=>{
     quote.style.opacity='0';
     setTimeout(()=>{quote.textContent=QUOTES[qi++%QUOTES.length];quote.style.opacity='1'},400);
@@ -172,6 +187,10 @@ document.getElementById('nameSubmitBtn').onclick=()=>{
   const n=document.getElementById('nameInput').value.trim();
   if(!n){document.getElementById('nameInput').style.borderColor='var(--red)';return}
   STATE.name=n;STATE.avatar=currentAvatarUrl||dicebearUrl('fun-emoji','user0');
+
+  //Add  saveState() to persist temporary UI state
+  saveState();
+
   SFX.select();showScreen('level-screen');
 };
 document.getElementById('nameInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('nameSubmitBtn').click()});
@@ -183,6 +202,8 @@ document.querySelectorAll('.level-card').forEach(card=>{
     SFX.levelUp();
     document.querySelectorAll('.level-card').forEach(c=>c.classList.remove('selected'));
     card.classList.add('selected');
+    //Add  saveState() to persist temporary UI state
+    saveState();
     setTimeout(()=>{loadHub();showScreen('hub-screen')},400);
   };
 });
@@ -236,6 +257,7 @@ function loadHub(){
   document.getElementById('soundToggle').classList.toggle('on',STATE.soundOn);
   document.getElementById('soundToggleNav').textContent=STATE.soundOn?'🔊':'🔇';
   document.getElementById('volumeSlider').value=STATE.volume;
+  applyTheme(STATE.theme);
 }
 function renderLeaderboard(){
   const list=document.getElementById('leaderboardList');list.innerHTML='';
@@ -413,12 +435,19 @@ function launchGame(game){
   document.getElementById('pauseOverlay').classList.add('hidden');
   document.getElementById('gameOverOverlay').classList.add('hidden');
   document.getElementById('spaceTutorial').classList.add('hidden');
+  document.getElementById('asteroidTutorial').classList.add('hidden');
   resizeCanvas();showScreen('game-screen');
   showMobileControls(game);
 
   // Space Shooter: show tutorial on desktop before starting
   if(game==='space'&&!('ontouchstart' in window)){
     document.getElementById('spaceTutorial').classList.remove('hidden');
+    return; // game starts after Continue click
+  }
+
+  // Asteroid Dodge: show tutorial on desktop before starting
+  if(game==='asteroid'&&!('ontouchstart' in window)){
+    document.getElementById('asteroidTutorial').classList.remove('hidden');
     return; // game starts after Continue click
   }
 
@@ -435,6 +464,14 @@ document.getElementById('spaceTutorialBtn').onclick=()=>{
   STATE.gamesPlayed++;saveState();
   checkAchievements();
   GAMES.space?.start();
+};
+
+// Asteroid tutorial continue button
+document.getElementById('asteroidTutorialBtn').onclick=()=>{
+  document.getElementById('asteroidTutorial').classList.add('hidden');
+  gameRunning=true;
+  STATE.gamesPlayed++;saveState();
+  GAMES.asteroid?.start();
 };
 
 // ===== UTILITY =====
@@ -1043,10 +1080,12 @@ GAMES.asteroid={
   update(){
     const W=gameCanvas.width,H=gameCanvas.height,p=this.player;
     this.frameCount++;const speed=Math.min(2+this.frameCount/800,5.5);
-    if(keys['ArrowLeft']&&p.x>p.r+5)p.x-=p.speed;
-    if(keys['ArrowRight']&&p.x<W-p.r-5)p.x+=p.speed;
-    if(keys['ArrowUp']&&p.y>p.r+5)p.y-=p.speed*.7;
-    if(keys['ArrowDown']&&p.y<H-p.r-5)p.y+=p.speed*.7;
+    if(keys['ArrowLeft']||keys['a']||keys['A'])p.x-=p.speed;
+    if(keys['ArrowRight']||keys['d']||keys['D'])p.x+=p.speed;
+    if(keys['ArrowUp']||keys['w']||keys['W'])p.y-=p.speed*.7;
+    if(keys['ArrowDown']||keys['s']||keys['S'])p.y+=p.speed*.7;
+    if(p.x<p.r+5)p.x=p.r+5;if(p.x>W-p.r-5)p.x=W-p.r-5;
+    if(p.y<p.r+5)p.y=p.r+5;if(p.y>H-p.r-5)p.y=H-p.r-5;
     p.trail.push({x:p.x,y:p.y});if(p.trail.length>12)p.trail.shift();
     if(p.invincible>0)p.invincible--;
     if(this.frameCount%60===0){this.score++;setScore(this.score);addCombo()}
@@ -1792,5 +1831,4 @@ window.addEventListener('load',()=>{
 });
 window.addEventListener('resize',()=>{if(gameRunning){resizeCanvas()}});
 
-// Auto-start
-runLoading();
+
