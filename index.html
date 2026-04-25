@@ -108,11 +108,29 @@
         <div class="stat-chip"><strong id="statCombo">0</strong>Best Combo</div>
       </div>
     </div>
+    <div class="hub-controls">
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="gameSearch" placeholder="Search games (Press '/' to focus)..." autocomplete="off">
+      </div>
+      
+      <div class="filter-pills" id="filterPills">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="arcade">🕹️ Arcade</button>
+        <button class="filter-btn" data-filter="action">⚔️ Action</button>
+        <button class="filter-btn" data-filter="multiplayer">👥 Multiplayer</button>
+      </div>
+    </div>
+
+    <div id="noResults" class="hidden">
+      <p>No games found matching your search!</p>
+    </div>
+
 
     <!-- Games Grid -->
     <div class="section-title">ARCADE GAMES</div>
     <div class="games-grid" id="gamesGrid">
-      <div class="game-card" data-game="space">
+      <div class="game-card" data-game="space" data-category="action">
         <div class="game-banner banner-space">🚀<span style="position:absolute;font-size:1rem;bottom:8px;left:10px;opacity:.5">⚡💥🔱</span></div>
         <div class="game-card-info">
           <div class="game-name">SPACE SHOOTER</div>
@@ -120,7 +138,7 @@
           <div class="game-best">BEST: <span class="best-score" data-game="space">0</span></div>
         </div>
       </div>
-      <div class="game-card" data-game="flappy">
+      <div class="game-card" data-game="flappy" data-category="arcade">
         <div class="game-banner banner-flappy">🐦<span style="position:absolute;font-size:1rem;bottom:8px;left:10px;opacity:.5">🌿🌤️💨</span></div>
         <div class="game-card-info">
           <div class="game-name">FLAPPY BIRD</div>
@@ -128,7 +146,7 @@
           <div class="game-best">BEST: <span class="best-score" data-game="flappy">0</span></div>
         </div>
       </div>
-      <div class="game-card" data-game="asteroid">
+      <div class="game-card" data-game="asteroid" data-category="action">
         <div class="game-banner banner-asteroid">☄️<span style="position:absolute;font-size:1rem;bottom:8px;left:10px;opacity:.5">🌌🪐✨</span></div>
         <div class="game-card-info">
           <div class="game-name">ASTEROID DODGE</div>
@@ -136,7 +154,7 @@
           <div class="game-best">BEST: <span class="best-score" data-game="asteroid">0</span></div>
         </div>
       </div>
-      <div class="game-card" data-game="whack">
+      <div class="game-card" data-game="whack" data-category="arcade">
         <div class="game-banner banner-whack">🐻<span style="position:absolute;font-size:1rem;bottom:8px;left:10px;opacity:.5">🔨💥⭐</span></div>
         <div class="game-card-info">
           <div class="game-name">WHACK A BEAR</div>
@@ -144,7 +162,7 @@
           <div class="game-best">BEST: <span class="best-score" data-game="whack">0</span></div>
         </div>
       </div>
-      <div class="game-card" data-game="dino">
+      <div class="game-card" data-game="dino" data-category="dino">
         <div class="game-banner banner-dino">🦕<span style="position:absolute;font-size:1rem;bottom:8px;left:10px;opacity:.5">🌵🦅💨</span></div>
         <div class="game-card-info">
           <div class="game-name">DINO JUMP</div>
