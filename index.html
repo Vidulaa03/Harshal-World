@@ -179,6 +179,14 @@
       </div>
     </div>
 
+    <!-- Achievements row -->
+    <div class="hub-bottom" style="margin-top: 1.5rem; margin-bottom: 0;">
+      <div class="achievements-card" style="grid-column: 1 / -1; width: 100%;">
+        <div class="section-title" style="margin-bottom:.8rem">ACHIEVEMENTS</div>
+        <div class="achievements-grid" id="achievementsList"></div>
+      </div>
+    </div>
+
     <!-- Footer branding -->
     <div style="text-align:center;padding:1.5rem 0 1rem;opacity:.5;display:flex;align-items:center;justify-content:center;gap:.5rem">
       <img src="ChatGPT Image Mar 3, 2026, 04_23_04 PM.png" alt="Logo" style="width:18px;height:18px;border-radius:50%">
@@ -287,6 +295,27 @@
       </div>
       <button class="tutorial-continue" id="spaceTutorialBtn">CONTINUE →</button>
     </div>
+
+    <!-- Asteroid Dodge Tutorial Overlay -->
+    <div class="tutorial-overlay hidden" id="asteroidTutorial">
+      <div class="tutorial-title">☄️ ASTEROID DODGE</div>
+      <div style="font-size:.8rem;color:var(--text2);text-align:center;max-width:500px">Dodge the incoming asteroids to survive!</div>
+      <div class="tutorial-grid">
+        <div class="tutorial-key">
+          <div class="tutorial-key-icon">← →</div>
+          <div class="tutorial-key-label"><strong>Move</strong>Arrow keys to move</div>
+        </div>
+        <div class="tutorial-key">
+          <div class="tutorial-key-icon">W A S D</div>
+          <div class="tutorial-key-label"><strong>Move</strong>WASD keys to move</div>
+        </div>
+        <div class="tutorial-key">
+          <div class="tutorial-key-icon">⏸</div>
+          <div class="tutorial-key-label"><strong>Pause</strong>ESC or pause button</div>
+        </div>
+      </div>
+      <button class="tutorial-continue" id="asteroidTutorialBtn">CONTINUE →</button>
+    </div>
   </div>
 </div>
 
@@ -322,6 +351,9 @@
     </div>
   </div>
 </div>
+
+<!-- ACHIEVEMENT TOAST CONTAINER -->
+<div id="achievement-toast-container" style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; pointer-events: none;"></div>
 
 <script src="script.js"></script>
 </body>
