@@ -3,9 +3,13 @@ const STATE = {
   name: '', avatar: '', level: 'beginner', xp: 0, gamesPlayed: 0,
   bestCombo: 0, totalScore: 0, soundOn: true, volume: 0.5,
   bestScores: {space:0,flappy:0,asteroid:0,whack:0,dino:0},
-  leaderboard: [], emojiAvatar: '🎮', theme: 'dark'
-};
+ feature/immersive-themes
 
+  leaderboard: [], emojiAvatar: '🎮', theme: 'default'
+
+  leaderboard: [], emojiAvatar: '🎮', theme: 'dark'
+main
+};
 const ACHIEVEMENTS_LIST = [
   { id: 'arcade_rookie', name: 'Arcade Rookie', desc: 'Play 10 total games.', icon: '🕹️' },
   { id: 'combo_king', name: 'Combo King', desc: 'Reach a 15x combo in any game.', icon: '💥' },
@@ -215,16 +219,44 @@ function loadState(){
 }
 loadState();
 
-function applyTheme(theme){
-  const isLight=theme==='light';
-  document.body.classList.toggle('light-theme',isLight);
-  const themeBtn=document.getElementById('themeToggleNav');
-  if(themeBtn){
-    themeBtn.textContent=isLight?'🌙':'☀️';
-    themeBtn.title=isLight?'Switch to dark theme':'Switch to light theme';
-  }
+// ====================== MULTI-THEME SYSTEM ======================
+const THEMES = {
+    default: { name: "Default",     icon: "🌌", next: "sea" },
+    sea:     { name: "Deep Sea",    icon: "🌊", next: "sunset" },
+    sunset:  { name: "Sunset",      icon: "🌅", next: "pixel" },
+    pixel:   { name: "Pixel",       icon: "🟩", next: "default" }
+};
+
+function applyTheme(theme) {
+    if (!THEMES[theme]) theme = "default";
+
+    // Remove all theme classes
+    document.body.classList.remove('theme-sea', 'theme-sunset', 'theme-pixel');
+
+    // Add new theme class (default has no class)
+    if (theme !== "default") {
+        document.body.classList.add(`theme-${theme}`);
+    }
+
+    STATE.theme = theme;
+    saveState();
+    updateThemeButton();
 }
-applyTheme(STATE.theme);
+
+function cycleTheme() {
+    const current = STATE.theme || "default";
+    const nextTheme = THEMES[current].next;
+    applyTheme(nextTheme);
+    SFX.click();
+}
+
+function updateThemeButton() {
+    const btn = document.getElementById('themeToggleNav');
+    if (!btn) return;
+    const t = THEMES[STATE.theme] || THEMES.default;
+    btn.innerHTML = `${t.icon} <span>${t.name}</span>`;
+}
+applyTheme(STATE.theme || "default");
 
 // ===== HUB =====
 function getRank(){return LEVELS_XP.find(l=>STATE.xp>=l.min&&STATE.xp<l.max)||LEVELS_XP[0]}
@@ -257,7 +289,7 @@ function loadHub(){
   document.getElementById('soundToggle').classList.toggle('on',STATE.soundOn);
   document.getElementById('soundToggleNav').textContent=STATE.soundOn?'🔊':'🔇';
   document.getElementById('volumeSlider').value=STATE.volume;
-  applyTheme(STATE.theme);
+  applyTheme(STATE.theme || "default");
 }
 function renderLeaderboard(){
   const list=document.getElementById('leaderboardList');list.innerHTML='';
@@ -364,10 +396,7 @@ document.getElementById('soundToggle').onclick=function(){
 };
 document.getElementById('soundToggleNav').onclick=()=>document.getElementById('soundToggle').click();
 document.getElementById('themeToggleNav').onclick=()=>{
-  STATE.theme=STATE.theme==='light'?'dark':'light';
-  applyTheme(STATE.theme);
-  saveState();
-  SFX.click();
+  cycleTheme();
 };
 document.getElementById('volumeSlider').oninput=function(){STATE.volume=+this.value;saveState()};
 document.getElementById('saveName').onclick=()=>{
