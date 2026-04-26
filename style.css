@@ -145,7 +145,11 @@ body.light-theme .navbar{background:rgba(255,255,255,0.88)}
 .banner-dino{background:linear-gradient(135deg,#0a0f0a 0%,#0d1a10 40%,#1a3322 70%,#0a0f0a 100%)}
 .banner-dino::before{content:'\1f335 \1f335';position:absolute;font-size:1rem;top:8px;right:10px;opacity:.35}
 .banner-dino::after{content:'\1f4a8';position:absolute;font-size:1.3rem;bottom:8px;left:12px;opacity:.3}
-/* END DINO JUMP STYLES */
+
+/* ZOMBIE SHOOTER STYLES */
+.banner-zombie{background:linear-gradient(135deg,#1a0505 0%,#3a0a0a 40%,#5a1010 70%,#1a0505 100%)}
+.banner-zombie::before{content:'\1f52b';position:absolute;font-size:1.2rem;top:8px;right:10px;opacity:.4;transform:rotate(-15deg)}
+.banner-zombie::after{content:'\1fa78';position:absolute;font-size:1.5rem;bottom:8px;left:10px;opacity:.3}
 .game-card-info{padding:1rem}
 .game-name{font-family:'Orbitron',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.3rem}
 .game-desc{font-size:.75rem;color:var(--text2);line-height:1.5;margin-bottom:.6rem}
