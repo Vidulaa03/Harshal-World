@@ -2,13 +2,8 @@
 const STATE = {
   name: '', avatar: '', level: 'beginner', xp: 0, gamesPlayed: 0,
   bestCombo: 0, totalScore: 0, soundOn: true, volume: 0.5,
-  bestScores: {space:0,flappy:0,asteroid:0,whack:0,dino:0},
- feature/immersive-themes
-
+  bestScores: {space:0,flappy:0,asteroid:0,whack:0,dino:0,zombie:0},
   leaderboard: [], emojiAvatar: '🎮', theme: 'default'
-
-  leaderboard: [], emojiAvatar: '🎮', theme: 'dark'
-main
 };
 const ACHIEVEMENTS_LIST = [
   { id: 'arcade_rookie', name: 'Arcade Rookie', desc: 'Play 10 total games.', icon: '🕹️' },
@@ -406,7 +401,7 @@ document.getElementById('saveName').onclick=()=>{
 document.getElementById('resetScores').onclick=()=>{
   if(confirm('Reset all scores and XP? This cannot be undone.')){
     STATE.xp=0;STATE.gamesPlayed=0;STATE.bestCombo=0;STATE.totalScore=0;
-    STATE.bestScores={space:0,flappy:0,asteroid:0,whack:0,dino:0};STATE.leaderboard=[];
+    STATE.bestScores={space:0,flappy:0,asteroid:0,whack:0,dino:0,zombie:0};STATE.leaderboard=[];
     STATE.achievements=[];
     saveState();loadHub();SFX.hit();
   }
@@ -460,11 +455,12 @@ function togglePause(){
 }
 function launchGame(game){
   currentGame=game;stopGame();
-  document.getElementById('hudGameName').textContent={space:'SPACE SHOOTER',flappy:'FLAPPY BIRD',asteroid:'ASTEROID DODGE',whack:'WHACK-A-MOLE',dino:'DINO JUMP'}[game];
+  document.getElementById('hudGameName').textContent={space:'SPACE SHOOTER',flappy:'FLAPPY BIRD',asteroid:'ASTEROID DODGE',whack:'WHACK-A-MOLE',dino:'DINO JUMP',zombie:'ZOMBIE SHOOTER'}[game];
   document.getElementById('pauseOverlay').classList.add('hidden');
   document.getElementById('gameOverOverlay').classList.add('hidden');
   document.getElementById('spaceTutorial').classList.add('hidden');
   document.getElementById('asteroidTutorial').classList.add('hidden');
+  if(document.getElementById('zombieTutorial'))document.getElementById('zombieTutorial').classList.add('hidden');
   resizeCanvas();showScreen('game-screen');
   showMobileControls(game);
 
@@ -477,6 +473,12 @@ function launchGame(game){
   // Asteroid Dodge: show tutorial on desktop before starting
   if(game==='asteroid'&&!('ontouchstart' in window)){
     document.getElementById('asteroidTutorial').classList.remove('hidden');
+    return; // game starts after Continue click
+  }
+
+  // Zombie Shooter: show tutorial on desktop before starting
+  if(game==='zombie'&&!('ontouchstart' in window)){
+    if(document.getElementById('zombieTutorial'))document.getElementById('zombieTutorial').classList.remove('hidden');
     return; // game starts after Continue click
   }
 
@@ -502,6 +504,16 @@ document.getElementById('asteroidTutorialBtn').onclick=()=>{
   STATE.gamesPlayed++;saveState();
   GAMES.asteroid?.start();
 };
+
+// Zombie tutorial continue button
+if(document.getElementById('zombieTutorialBtn')){
+  document.getElementById('zombieTutorialBtn').onclick=()=>{
+    document.getElementById('zombieTutorial').classList.add('hidden');
+    gameRunning=true;
+    STATE.gamesPlayed++;saveState();
+    GAMES.zombie?.start();
+  };
+}
 
 // ===== UTILITY =====
 function showFloatingText(parent,text,big=false){
@@ -604,7 +616,7 @@ function showMobileControls(game){
   // Hide all mobile control sets
   document.querySelectorAll('.mobile-controls').forEach(el=>el.classList.remove('active'));
   // Show the correct one
-  const map={space:'mobileSpace',asteroid:'mobileAsteroid'};
+  const map={space:'mobileSpace',asteroid:'mobileAsteroid',zombie:'mobileZombie'};
   const id=map[game];
   if(id){const el=document.getElementById(id);if(el)el.classList.add('active')}
   // Sync slider thumb to ship position
@@ -1867,7 +1879,172 @@ window.addEventListener('load',()=>{
 });
 window.addEventListener('resize',()=>{if(gameRunning){resizeCanvas()}});
 
-main
+// ============================================================
+// ZOMBIE SHOOTER — Survival Top-Down
+// ============================================================
+GAMES.zombie = {
+  score: 0, lives: 3, gameTime: 0, player: null, bullets: [], zombies: [], particles: [], lastShot: 0,
+
+  start() {
+    const W = gameCanvas.width, H = gameCanvas.height;
+    this.score = 0; this.lives = 3; this.gameTime = 0;
+    this.bullets = []; this.zombies = []; this.particles = [];
+    this.player = { x: W/2, y: H/2, w: 32, h: 32, vx: 0, vy: 0, speed: 4 };
+    setScore(0); setLives(3); resetCombo();
+    gameLoop = requestAnimationFrame(() => this.loop());
+    
+    this.mouseHandler = (e) => this.shoot(e);
+    gameCanvas.addEventListener('mousedown', this.mouseHandler);
+    gameCanvas.addEventListener('touchstart', this.mouseHandler, {passive: false});
+  },
+
+  stop() {
+    gameCanvas.removeEventListener('mousedown', this.mouseHandler);
+    gameCanvas.removeEventListener('touchstart', this.mouseHandler);
+  },
+
+  shoot(e) {
+    if(!gameRunning || gamePaused) return;
+    e.preventDefault();
+    const W = gameCanvas.width, H = gameCanvas.height;
+    const rect = gameCanvas.getBoundingClientRect();
+    let cx, cy;
+    if(e.touches && e.touches.length > 0) {
+      cx = e.touches[0].clientX - rect.left; cy = e.touches[0].clientY - rect.top;
+    } else {
+      cx = e.clientX - rect.left; cy = e.clientY - rect.top;
+    }
+    const dx = cx - (this.player.x + 16);
+    const dy = cy - (this.player.y + 16);
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if(dist === 0) return;
+    this.bullets.push({ x: this.player.x + 16, y: this.player.y + 16, vx: (dx/dist)*10, vy: (dy/dist)*10 });
+    SFX.shoot();
+  },
+
+  spawnZombie() {
+    const W = gameCanvas.width, H = gameCanvas.height;
+    let x, y;
+    if(Math.random() < 0.5) {
+      x = Math.random() < 0.5 ? -30 : W + 30;
+      y = Math.random() * H;
+    } else {
+      x = Math.random() * W;
+      y = Math.random() < 0.5 ? -30 : H + 30;
+    }
+    this.zombies.push({ x, y, w: 32, h: 32, speed: 1 + Math.random() * 2 + (this.gameTime/1000), hp: 1 + Math.floor(this.gameTime/600) });
+  },
+
+  spawnParticles(x, y, color) {
+    for(let i = 0; i < 15; i++) {
+      const a = (i/15)*Math.PI*2, v = 2 + Math.random()*3;
+      this.particles.push({x, y, vx: Math.cos(a)*v, vy: Math.sin(a)*v, life: 1, color, size: Math.random()*4+2});
+    }
+  },
+
+  update() {
+    const W = gameCanvas.width, H = gameCanvas.height, p = this.player;
+    this.gameTime++;
+
+    let dx = 0, dy = 0;
+    if(keys['ArrowLeft'] || keys['a'] || keys['A']) dx = -1;
+    if(keys['ArrowRight'] || keys['d'] || keys['D']) dx = 1;
+    if(keys['ArrowUp'] || keys['w'] || keys['W']) dy = -1;
+    if(keys['ArrowDown'] || keys['s'] || keys['S']) dy = 1;
+    
+    if(dx !== 0 && dy !== 0) { dx *= 0.707; dy *= 0.707; } // normalize diagonal
+    p.x += dx * p.speed; p.y += dy * p.speed;
+    p.x = Math.max(0, Math.min(W - p.w, p.x));
+    p.y = Math.max(0, Math.min(H - p.h, p.y));
+
+    if(this.gameTime % Math.max(20, 60 - Math.floor(this.gameTime/100)) === 0) {
+      this.spawnZombie();
+    }
+
+    this.bullets.forEach((b, i) => {
+      b.x += b.vx; b.y += b.vy;
+      if(b.x < 0 || b.x > W || b.y < 0 || b.y > H) this.bullets.splice(i, 1);
+    });
+
+    this.particles.forEach((pt, i) => {
+      pt.x += pt.vx; pt.y += pt.vy; pt.life -= 0.05;
+      if(pt.life <= 0) this.particles.splice(i, 1);
+    });
+
+    this.zombies.forEach((z, i) => {
+      const zdx = (p.x + 16) - (z.x + 16);
+      const zdy = (p.y + 16) - (z.y + 16);
+      const dist = Math.sqrt(zdx*zdx + zdy*zdy);
+      if(dist > 0) { z.x += (zdx/dist)*z.speed; z.y += (zdy/dist)*z.speed; }
+
+      // collision with player
+      if(dist < 20) {
+        this.lives--; setLives(this.lives); SFX.hit(); screenShake();
+        this.zombies.splice(i, 1);
+        this.spawnParticles(p.x+16, p.y+16, '#ff0000');
+        if(this.lives <= 0) { this.stop(); endGame(this.score, 'zombie'); }
+      }
+    });
+
+    // bullets hit zombies
+    for(let i = this.bullets.length - 1; i >= 0; i--) {
+      const b = this.bullets[i];
+      for(let j = this.zombies.length - 1; j >= 0; j--) {
+        const z = this.zombies[j];
+        if(b.x > z.x && b.x < z.x + z.w && b.y > z.y && b.y < z.y + z.h) {
+          this.bullets.splice(i, 1);
+          z.hp--;
+          if(z.hp <= 0) {
+            this.zombies.splice(j, 1);
+            this.score += 10; setScore(this.score); addCombo();
+            this.spawnParticles(z.x+16, z.y+16, '#00ff00'); // zombie blood
+            SFX.point();
+          } else {
+             this.spawnParticles(z.x+16, z.y+16, '#008800');
+          }
+          break;
+        }
+      }
+    }
+  },
+
+  draw() {
+    gCtx.fillStyle = '#111'; gCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+    
+    // Grid lines for zombie mode
+    gCtx.strokeStyle = '#222'; gCtx.lineWidth = 2;
+    for(let x=0; x<gameCanvas.width; x+=50) { gCtx.beginPath(); gCtx.moveTo(x,0); gCtx.lineTo(x,gameCanvas.height); gCtx.stroke(); }
+    for(let y=0; y<gameCanvas.height; y+=50) { gCtx.beginPath(); gCtx.moveTo(0,y); gCtx.lineTo(gameCanvas.width,y); gCtx.stroke(); }
+
+    const p = this.player;
+    gCtx.fillStyle = '#4facfe'; gCtx.fillRect(p.x, p.y, p.w, p.h);
+    // Player gun indicator
+    gCtx.fillStyle = '#fff'; gCtx.fillRect(p.x+12, p.y+12, 8, 8);
+
+    gCtx.fillStyle = '#ffdf00';
+    this.bullets.forEach(b => { gCtx.beginPath(); gCtx.arc(b.x, b.y, 4, 0, Math.PI*2); gCtx.fill(); });
+
+    this.zombies.forEach(z => {
+      gCtx.fillStyle = '#2e8b57'; gCtx.fillRect(z.x, z.y, z.w, z.h);
+      gCtx.fillStyle = '#8b0000'; gCtx.fillRect(z.x + 4, z.y + 4, 8, 8); // eyes
+      gCtx.fillRect(z.x + 20, z.y + 4, 8, 8);
+    });
+
+    this.particles.forEach(pt => {
+      gCtx.globalAlpha = pt.life; gCtx.fillStyle = pt.color;
+      gCtx.beginPath(); gCtx.arc(pt.x, pt.y, pt.size, 0, Math.PI*2); gCtx.fill();
+    });
+    gCtx.globalAlpha = 1;
+  },
+
+  loop() {
+    if(!gameRunning) return;
+    if(!gamePaused) this.update();
+    this.draw();
+    gameLoop = requestAnimationFrame(() => this.loop());
+  }
+};
+
 
 // ===== SEARCH & FILTER LOGIC =====
 
@@ -1920,4 +2097,4 @@ window.addEventListener('keydown', (e) => {
         e.preventDefault(); // Prevent the '/' from being typed
         gameSearch.focus();
     }
-}); main
+});
