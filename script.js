@@ -1,14 +1,18 @@
-// ===== GLOBAL STATE =====
 const STATE = {
-  name: '', avatar: '', level: 'beginner', xp: 0, gamesPlayed: 0,
-  bestCombo: 0, totalScore: 0, soundOn: true, volume: 0.5,
+  name: '',
+  avatar: '',
+  level: 'beginner',
+  xp: 0,
+  gamesPlayed: 0,
+  bestCombo: 0,
+  totalScore: 0,
+  soundOn: true,
+  volume: 0.5,
   bestScores: {space:0,flappy:0,asteroid:0,whack:0,dino:0},
- feature/immersive-themes
 
-  leaderboard: [], emojiAvatar: '🎮', theme: 'default'
-
-  leaderboard: [], emojiAvatar: '🎮', theme: 'dark'
-main
+  leaderboard: [],
+  emojiAvatar: '🎮',
+  theme: 'default'
 };
 const ACHIEVEMENTS_LIST = [
   { id: 'arcade_rookie', name: 'Arcade Rookie', desc: 'Play 10 total games.', icon: '🕹️' },
