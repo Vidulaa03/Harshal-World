@@ -3,8 +3,12 @@ const STATE = {
   name: '', avatar: '', level: 'beginner', xp: 0, gamesPlayed: 0,
   bestCombo: 0, totalScore: 0, soundOn: true, volume: 0.5,
   bestScores: {space:0,flappy:0,asteroid:0,whack:0,dino:0},
+ feature/immersive-themes
 
   leaderboard: [], emojiAvatar: '🎮', theme: 'default'
+
+  leaderboard: [], emojiAvatar: '🎮', theme: 'dark'
+main
 };
 const ACHIEVEMENTS_LIST = [
   { id: 'arcade_rookie', name: 'Arcade Rookie', desc: 'Play 10 total games.', icon: '🕹️' },
@@ -278,6 +282,7 @@ function loadHub(){
   document.getElementById('bestCombo').textContent=STATE.bestCombo+'x';
   document.getElementById('totalXp').textContent=STATE.xp;
   document.querySelectorAll('.best-score').forEach(el=>{el.textContent=STATE.bestScores[el.dataset.game]||0});
+  renderLeaderboard();
   renderLeaderboard();
   renderAchievements();
   document.getElementById('settingsName').value=STATE.name;
@@ -1236,8 +1241,8 @@ GAMES.whack={
       gCtx.strokeStyle=h.active?'rgba(245,158,11,0.5)':'rgba(100,80,40,0.3)';gCtx.lineWidth=2;
       gCtx.beginPath();gCtx.ellipse(h.x,h.y,34,18,0,0,Math.PI*2);gCtx.stroke();gCtx.shadowBlur=0;gCtx.restore();
       if(h.active){
-        const sy=h.whacked?h.whackAnim*30:-30+h.anim*30;
-        gCtx.save();gCtx.beginPath();gCtx.ellipse(h.x,h.y,34,18,0,0,Math.PI*2);gCtx.clip();
+        const sy=h.whacked?h.whackAnim*30:-35+h.anim*35;
+        gCtx.save();gCtx.beginPath();gCtx.ellipse(h.x,h.y,34,35,0,0,Math.PI*2);gCtx.clip();
         gCtx.save();gCtx.translate(h.x,h.y+sy);
         gCtx.fillStyle=h.whacked?'#7A4A1A':'#8B5E3C';gCtx.beginPath();gCtx.arc(-14,-32,8,0,Math.PI*2);gCtx.fill();gCtx.beginPath();gCtx.arc(14,-32,8,0,Math.PI*2);gCtx.fill();
         gCtx.fillStyle='#D2956C';gCtx.beginPath();gCtx.arc(-14,-32,4,0,Math.PI*2);gCtx.fill();gCtx.beginPath();gCtx.arc(14,-32,4,0,Math.PI*2);gCtx.fill();
@@ -1855,4 +1860,57 @@ window.addEventListener('load',()=>{
 });
 window.addEventListener('resize',()=>{if(gameRunning){resizeCanvas()}});
 
+main
 
+// ===== SEARCH & FILTER LOGIC =====
+
+const gameSearch = document.getElementById('gameSearch');
+const filterBtns = document.querySelectorAll('.filter-btn');
+const noResults = document.getElementById('noResults');
+
+function filterGames() {
+    const searchTerm = gameSearch.value.toLowerCase();
+    const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+    const gameCards = document.querySelectorAll('.game-card'); 
+    let visibleCount = 0;
+
+    gameCards.forEach(card => {
+        const gameName = card.querySelector('.game-name').textContent.toLowerCase();
+        const gameCategory = card.dataset.category || 'all';
+
+        // Check if it matches Search AND Filter
+        const matchesSearch = gameName.includes(searchTerm);
+        const matchesFilter = (activeFilter === 'all' || gameCategory === activeFilter);
+
+        if (matchesSearch && matchesFilter) {
+            card.classList.remove('hidden');
+            visibleCount++;
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+
+    if (visibleCount === 0) {
+        noResults.classList.remove('hidden');
+    } else {
+        noResults.classList.add('hidden');
+    }
+}
+
+gameSearch.addEventListener('input', filterGames);
+
+filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        filterGames();
+    });
+});
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement !== gameSearch) {
+        e.preventDefault(); // Prevent the '/' from being typed
+        gameSearch.focus();
+    }
+}); main

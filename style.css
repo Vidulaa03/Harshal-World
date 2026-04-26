@@ -343,6 +343,7 @@ img.emoji{height:1.15em;width:1.15em;margin:0 .06em;vertical-align:-0.15em;displ
 @keyframes toastSlideIn { from { opacity: 0; transform: translateX(100%) scale(0.9); } to { opacity: 1; transform: translateX(0) scale(1); } }
 @keyframes toastSlideOut { from { opacity: 1; transform: translateX(0) scale(1); } to { opacity: 0; transform: translateX(100%) scale(0.9); } }
 
+feature/immersive-themes
 /* ====================== MULTI-THEME OVERRIDES ====================== */
 
 /* ====================== DEEP SEA ARCADE - EXACT MATCH ====================== */
@@ -844,4 +845,101 @@ body[class*="theme-"] {
 
 .game-card:hover:not(.locked) {
     box-shadow: 0 15px 50px var(--glow) !important;
+=======
+/* --- SEARCH & FILTER SECTION --- */
+.hub-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1rem 2rem;
+  width:100%;
+}
+
+.search-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+#gameSearch {
+  width: 100%;
+  padding: 0.8rem 1rem 0.8rem 2.8rem;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: 0.3s;
+}
+
+#gameSearch:focus {
+  border-color: var(--neon);
+  background: rgba(124, 58, 237, 0.15);
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+}
+
+.filter-pills {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filter-btn {
+  padding: 0.5rem 1.2rem;
+  background: var(--glass2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text2);
+  cursor: pointer;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter-btn:hover {
+  background: var(--glass);
+  border-color: var(--neon2);
+  transform: translateY(-2px);
+}
+
+.filter-btn.active {
+  background: var(--purple);
+  color: white;
+  border-color: var(--neon);
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
+}
+
+/* Logic for hiding cards */
+.game-card.hidden {
+  display: none !important;
+}
+
+/* Empty state styling */
+#noResults p {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  background: var(--glass);
+  display: inline-block;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  border: 1px dashed var(--border);
+}
+.hidden {
+    display: none !important;
+ main
 }
