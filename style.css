@@ -849,6 +849,7 @@ body[class*="theme-"] {
 
 .game-card:hover:not(.locked) {
     box-shadow: 0 15px 50px var(--glow) !important;
+}
 
 /* --- SEARCH & FILTER SECTION --- */
 .hub-controls {
@@ -945,5 +946,4 @@ body[class*="theme-"] {
 }
 .hidden {
     display: none !important;
- main
 }
