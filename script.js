@@ -2026,9 +2026,28 @@ GAMES.zombie = {
     for(let y=0; y<gameCanvas.height; y+=50) { gCtx.beginPath(); gCtx.moveTo(0,y); gCtx.lineTo(gameCanvas.width,y); gCtx.stroke(); }
 
     const p = this.player;
-    gCtx.fillStyle = '#4facfe'; gCtx.fillRect(p.x, p.y, p.w, p.h);
-    // Player gun indicator
-    gCtx.fillStyle = '#fff'; gCtx.fillRect(p.x+12, p.y+12, 8, 8);
+    const cx = p.x + p.w / 2, cy = p.y + p.h / 2;
+    // Body (torso)
+    gCtx.fillStyle = '#2d5a8a';
+    gCtx.beginPath();
+    gCtx.ellipse(cx, cy + 10, 10, 14, 0, 0, Math.PI * 2);
+    gCtx.fill();
+    // Head
+    gCtx.fillStyle = '#f5c5a3';
+    gCtx.beginPath();
+    gCtx.arc(cx, cy - 6, 10, 0, Math.PI * 2);
+    gCtx.fill();
+    // Eyes
+    gCtx.fillStyle = '#222';
+    gCtx.beginPath();
+    gCtx.arc(cx - 3.5, cy - 8, 2, 0, Math.PI * 2);
+    gCtx.arc(cx + 3.5, cy - 8, 2, 0, Math.PI * 2);
+    gCtx.fill();
+    // Gun barrel pointing upward
+    gCtx.fillStyle = '#555';
+    gCtx.fillRect(cx + 4, cy - 22, 5, 16);
+    gCtx.fillStyle = '#888';
+    gCtx.fillRect(cx + 2, cy - 22, 9, 4);
 
     gCtx.fillStyle = '#ffdf00';
     this.bullets.forEach(b => { gCtx.beginPath(); gCtx.arc(b.x, b.y, 4, 0, Math.PI*2); gCtx.fill(); });
