@@ -574,7 +574,7 @@ GAMES.space={
     const W=gameCanvas.width,H=gameCanvas.height;
     this.score=0;this.lives=5;this.gameTime=0;this.diffLevel=0;this.bombs=0;
     this.tripleShot=false;this.tripleShotTimer=0;this.bigBullet=false;this.bigBulletTimer=0;
-    this.bullets=[];this.enemies=[];this.particles=[];this.powerups=[];
+    this.bullets=[];this.enemies=[];this.particles=[];this.powerups=[];this.enemyBullets=[];
     this.nextPUTime=300+Math.floor(Math.random()*180);this.maxE=3;
     this.puMsg='';this.puMsgTimer=0;this.bombFlash=0;this.lastMilestone=0;this.surpriseFlash=0;
     this.player={x:W/2,y:H-80,w:64,h:64,vx:0,vy:0,acc:1.2,fric:0.88,maxSpd:12,invincible:0};
@@ -627,14 +627,34 @@ GAMES.space={
   spawnEnemy(){
     const W=gameCanvas.width,s=getDiffSettings(this.diffLevel);
     const spd=s.speed+Math.random()*0.3;
-    const mt=Math.random()<0.4?'zigzag':'straight';
-    this.enemies.push({
-      x:Math.random()*(W-32),y:-32,w:32,h:32,
-      moveType:mt,vx:(Math.random()-.5)*2,vy:spd,
+    const types=['straight','zigzag','orbit','flanker'];
+    const mt=types[Math.floor(Math.random()*types.length)];
+    const enemy={
+      w:32,h:32,moveType:mt,vy:spd,frame:0,
       amplitude:Math.random()*40+20,frequency:Math.random()*0.03+0.01,
-      phase:Math.random()*Math.PI*2,baseX:Math.random()*(W-32),
-      frame:0
-    });
+      phase:Math.random()*Math.PI*2
+    };
+    if(mt==='flanker'){
+      enemy.y=-32;
+      const fromLeft=Math.random()<0.5;
+      enemy.x=fromLeft?-32:W+32;
+      enemy.vx=fromLeft?spd*1.5:-spd*1.5;
+      enemy.targetX=0;
+    }else if(mt==='orbit'){
+      enemy.x=Math.random()*(W-64)+32;
+      enemy.y=-32;
+      enemy.orbitX=enemy.x;
+      enemy.orbitY=100+Math.random()*150;
+      enemy.orbitRadius=30+Math.random()*40;
+      enemy.orbitDuration=150+Math.random()*100;
+      enemy.vx=0;
+    }else{
+      enemy.x=Math.random()*(W-32);
+      enemy.y=-32;
+      enemy.baseX=enemy.x;
+      enemy.vx=(Math.random()-.5)*2;
+    }
+    this.enemies.push(enemy);
   },
 
   spawnPowerUp(){
@@ -698,9 +718,54 @@ GAMES.space={
 
     this.enemies.forEach(e=>{
       e.frame++;
-      if(e.moveType==='zigzag'){e.x=e.baseX+Math.sin(e.frame*e.frequency)*e.amplitude}
-      else{e.x+=e.vx;if(e.x<0||e.x>W-32)e.vx*=-1}
-      e.y+=e.vy;
+      if(e.moveType==='zigzag'){
+        e.x=e.baseX+Math.sin(e.frame*e.frequency)*e.amplitude;
+        e.y+=e.vy;
+      }else if(e.moveType==='orbit'){
+        if(e.frame<e.orbitDuration){
+          e.y+=(e.orbitY-e.y)*0.05;
+          e.x=e.orbitX+Math.cos(e.frame*0.05)*e.orbitRadius;
+        }else{
+          if(e.frame===Math.floor(e.orbitDuration)){
+            const dx=(p.x+p.w/2)-(e.x+e.w/2);
+            e.vx=dx>0?2:-2;
+            e.vy=ds.speed*1.8;
+          }
+          e.x+=e.vx;e.y+=e.vy;
+        }
+      }else if(e.moveType==='flanker'){
+        if(e.frame<100){
+          e.x+=e.vx;
+          e.y+=e.vy*0.5;
+          const distToPlayerX=Math.abs(e.x-(p.x+p.w/2));
+          if(distToPlayerX<30) e.vx*=0.8;
+        }else{
+          e.y+=ds.speed*2;
+        }
+      }else{
+        e.x+=e.vx;if(e.x<0||e.x>W-32)e.vx*=-1;
+        e.y+=e.vy;
+      }
+
+      const shootChance=0.002+this.diffLevel*0.0015;
+      if(Math.random()<shootChance && e.y>0 && e.y<H/2){
+        this.enemyBullets.push({
+          x:e.x+e.w/2,y:e.y+e.h,
+          vx:0,vy:ds.speed*1.5+2
+        });
+      }
+    });
+
+    this.enemyBullets=this.enemyBullets.filter(b=>{
+      b.x+=b.vx;b.y+=b.vy;
+      if(p.invincible<=0&&b.x>p.x&&b.x<p.x+p.w&&b.y>p.y&&b.y<p.y+p.h){
+        this.lives--;setLives(this.lives);SFX.hit();screenShake();
+        p.invincible=90;resetCombo();
+        this.spawnParticles(b.x,b.y,'#EF4444');
+        if(this.lives<=0)endGame(this.score,'Space Shooter');
+        return false;
+      }
+      return b.y<H+20;
     });
 
     this.powerups.forEach(pu=>{pu.frame++;pu.y+=pu.vy;pu.x+=Math.sin(pu.frame*0.05)*0.5});
@@ -832,6 +897,13 @@ GAMES.space={
         gCtx.fillStyle='#10B981';gCtx.shadowColor='#10B981';gCtx.shadowBlur=6;
         gCtx.fillRect(b.x,b.y,4,10);gCtx.shadowBlur=0;
       }
+    });
+
+    this.enemyBullets.forEach(b=>{
+      gCtx.fillStyle='#EF4444';gCtx.shadowColor='#F97316';gCtx.shadowBlur=8;
+      gCtx.beginPath();gCtx.arc(b.x,b.y,4,0,Math.PI*2);gCtx.fill();
+      gCtx.fillStyle='#F97316';gCtx.beginPath();gCtx.arc(b.x,b.y,2,0,Math.PI*2);gCtx.fill();
+      gCtx.shadowBlur=0;
     });
 
     this.enemies.forEach(e=>{
