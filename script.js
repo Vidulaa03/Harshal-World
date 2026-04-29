@@ -2198,3 +2198,81 @@ window.addEventListener('keydown', (e) => {
         gameSearch.focus();
     }
 });
+// ===== ARCADE SPIN WHEEL LOGIC =====
+let currentWheelRotation = 0;
+let spunGameId = ''; // Stores the ID of the winning game
+
+const spinBtn = document.getElementById('spinBtn');
+const wheelOverlay = document.getElementById('wheelOverlay');
+const winnerOverlay = document.getElementById('winnerOverlay');
+const openWheelBtn = document.getElementById('openWheelBtn');
+const closeWheelBtn = document.getElementById('closeWheelBtn');
+const closeWinnerBtn = document.getElementById('closeWinnerBtn');
+
+// Open/Close Modals
+if(openWheelBtn) openWheelBtn.onclick = () => wheelOverlay.classList.remove('hidden');
+if(closeWheelBtn) closeWheelBtn.onclick = () => wheelOverlay.classList.add('hidden');
+
+// "PLAY NOW" Button Logic
+if(closeWinnerBtn) {
+    closeWinnerBtn.onclick = () => {
+        winnerOverlay.classList.add('hidden'); // Hide the winner popup
+        
+        // Launch the game! (Unless it's Zombie Shooter, which is locked)
+        if(spunGameId === 'zombie') {
+            alert("🧟 Zombie Shooter is coming soon! Try spinning again.");
+        } else if (spunGameId) {
+            launchGame(spunGameId);
+        }
+    };
+}
+
+// The Spin
+if(spinBtn) {
+    spinBtn.onclick = () => {
+        // Disable button while spinning
+        spinBtn.disabled = true;
+        spinBtn.style.opacity = '0.5';
+        
+        const wheel = document.getElementById('spinWheel');
+        const randomSpin = Math.floor(Math.random() * 360) + 1800; 
+        currentWheelRotation += randomSpin;
+        wheel.style.transform = `rotate(${currentWheelRotation}deg)`;
+        
+        // Wait for CSS transition (4 seconds)
+        setTimeout(() => {
+            const finalAngle = currentWheelRotation % 360;
+            const pointerAngle = (360 - finalAngle) % 360;
+            const winningSlice = Math.floor(pointerAngle / 60);
+            
+            // The display names for the popup
+            const games = [
+                "🚀 SPACE SHOOTER", "🐦 FLAPPY BIRD", "☄️ ASTEROID DODGE", 
+                "🐻 WHACK A BEAR", "🦕 DINO JUMP", "🧟 ZOMBIE SHOOTER"
+            ];
+            
+            // The internal IDs used by your launchGame() function
+            const gameIds = [
+                "space", "flappy", "asteroid", 
+                "whack", "dino", "zombie"
+            ];
+            
+            // Hide Wheel, Show Winner Pop-up
+            wheelOverlay.classList.add('hidden');
+            
+            document.getElementById('winnerName').textContent = games[winningSlice];
+            spunGameId = gameIds[winningSlice]; // Save the winning ID to the variable!
+            
+            winnerOverlay.classList.remove('hidden');
+            
+            // Audio & Visual Effects
+            if (typeof SFX !== 'undefined' && SFX.levelUp) SFX.levelUp();
+            if (typeof spawnConfetti === 'function') spawnConfetti();
+            
+            // Re-enable spin button for next time
+            spinBtn.disabled = false;
+            spinBtn.style.opacity = '1';
+            
+        }, 4000); 
+    };
+}

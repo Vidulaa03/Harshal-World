@@ -90,6 +90,7 @@
     <button class="nav-btn" id="soundToggleNav" title="Toggle Sound">🔊</button>
     <button class="nav-btn" id="themeToggleNav" title="Cycle Theme">🌌 <span>Default</span></button>
     <button class="nav-btn" id="settingsBtn">⚙️</button>
+    <button class="btn" id="openWheelBtn" style="padding: 0 1.2rem; height: 34px; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; white-space: nowrap; margin-left: 0.5rem;">SPIN TO CHOOSE!</button>
   </nav>
   <div class="hub-content">
     <!-- Hero -->
@@ -406,6 +407,34 @@
 
 <!-- ACHIEVEMENT TOAST CONTAINER -->
 <div id="achievement-toast-container" style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; pointer-events: none;"></div>
+<div class="settings-overlay hidden" id="wheelOverlay">
+  <div class="settings-panel" style="display: flex; flex-direction: column; align-items: center; position: relative; width: min(420px, 90vw); background: #0b0213; border-color: #ff007f; box-shadow: 0 0 40px rgba(255,0,127,0.4);">
+    <button class="close-btn" id="closeWheelBtn" style="position: absolute; top: 15px; right: 20px; color: #ffaa00; text-shadow: 0 0 10px #ffaa00;">✕</button>
+    <div class="overlay-title" style="margin-bottom: 2rem; font-size: 1.5rem; color: #ffaa00; text-shadow: 0 0 15px #ffaa00;">CHOOSE NEXT GAME</div>
+
+    <div class="wheel-container">
+      <div class="wheel-pointer">▼</div>
+      <div class="wheel" id="spinWheel">
+        <div class="slice-text" style="--i: 0;">🚀 Space Shooter</div>
+        <div class="slice-text" style="--i: 1;">🐦 Flappy Bird</div>
+        <div class="slice-text" style="--i: 2;">☄️ Asteroid Dodge</div>
+        <div class="slice-text" style="--i: 3;">🐻 Whack A Bear</div>
+        <div class="slice-text" style="--i: 4;">🦕 Dino Jump</div>
+        <div class="slice-text" style="--i: 5;">🧟 Zombie Shooter</div>
+      </div>
+      <button class="wheel-spin-btn" id="spinBtn">SPIN</button>
+    </div>
+  </div>
+</div>
+
+<div class="settings-overlay hidden" id="winnerOverlay" style="z-index: 300;">
+  <div class="settings-panel" style="display: flex; flex-direction: column; align-items: center; text-align: center; background: #051329; border-color: #00d2ff; box-shadow: 0 0 50px rgba(0,210,255,0.6);">
+    <div style="font-size: 5rem; margin-bottom: 1rem; filter: drop-shadow(0 0 25px rgba(255,215,0,0.8));">🏆</div>
+    <div class="overlay-title" style="font-size: 2.2rem; color: #00d2ff; text-shadow: 0 0 20px #00d2ff; margin-bottom: 0.5rem;">YOU GOT</div>
+    <div id="winnerName" style="font-family: 'Orbitron', sans-serif; font-size: 2.5rem; font-weight: 900; color: #ffaa00; text-shadow: 0 0 20px #ffaa00; margin-bottom: 2.5rem;">GAME NAME</div>
+    <button class="btn" id="closeWinnerBtn" style="font-size: 1.2rem; padding: 1rem 3rem;">PLAY NOW</button>
+  </div>
+</div>
 
 <script src="script.js"></script>
 </body>
