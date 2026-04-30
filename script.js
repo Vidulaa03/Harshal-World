@@ -294,6 +294,7 @@ function loadHub(){
   document.getElementById('soundToggleNav').textContent=STATE.soundOn?'🔊':'🔇';
   document.getElementById('volumeSlider').value=STATE.volume;
   applyTheme(STATE.theme || "default");
+  initFeaturedGame();
 }
 function renderLeaderboard(){
   const list=document.getElementById('leaderboardList');list.innerHTML='';
@@ -2081,7 +2082,7 @@ GAMES.zombie = {
             this.spawnParticles(z.x+16, z.y+16, '#00ff00'); // zombie blood
             SFX.point();
           } else {
-             this.spawnParticles(z.x+16, z.y+16, '#008800');
+            this.spawnParticles(z.x+16, z.y+16, '#008800');
           }
           break;
         }
@@ -2198,3 +2199,38 @@ window.addEventListener('keydown', (e) => {
         gameSearch.focus();
     }
 });
+// ===== COMMUNITY FAVOURITE LOGIC =====
+function initFeaturedGame() {
+    const featuredGames = [
+        { id: 'space', name: 'SPACE SHOOTER', icon: '🚀', theme: 'space', msg: 'Blast off! Players are loving the fast-paced action and retro vibes this week.' },
+        { id: 'dino', name: 'DINO JUMP', icon: '🦕', theme: 'dino', msg: 'Jump into the neon wasteland. The community is setting massive high scores!' },
+        { id: 'asteroid', name: 'ASTEROID DODGE', icon: '☄️', theme: 'asteroid', msg: 'Reflex check! Asteroids are trending heavily in the arcade hub today.' },
+        { id: 'whack', name: 'WHACK A BEAR', icon: '🐻', theme: 'whack', msg: 'Need some stress relief? Join the community in whacking some bears.' },
+        { id: 'flappy', name: 'FLAPPY BIRD', icon: '🐦', theme: 'flappy', msg: 'The classic returns. Can you beat the current community high score?' }
+    ];
+
+    // Math magic to rotate weekly based on current date
+    const msPerWeek = 1000 * 60 * 60 * 24 * 7;
+    const currentWeek = Math.floor(Date.now() / msPerWeek);
+    //const currentWeek = 0; // For testing, set to 0 to always show the first game. Change to above line for real rotation.
+    const gameOfTheWeek = featuredGames[currentWeek % featuredGames.length];
+
+    // Update the DOM elements
+    document.getElementById('featuredTitle').textContent = gameOfTheWeek.name;
+    document.getElementById('featuredIcon').textContent = gameOfTheWeek.icon;
+    document.getElementById('featuredMsg').textContent = gameOfTheWeek.msg;
+    
+    // Update banner background
+    const banner = document.getElementById('featuredBanner');
+    banner.className = 'featured-banner ' + gameOfTheWeek.theme;
+
+    // Wire up the Play button
+    document.getElementById('featuredPlayBtn').onclick = () => {
+        launchGame(gameOfTheWeek.id);
+    };
+
+    // Force Twemoji to parse the newly injected icon
+    if(typeof twemoji !== 'undefined') {
+        twemoji.parse(document.getElementById('featuredIcon'), {folder: 'svg', ext: '.svg'});
+    }
+}
